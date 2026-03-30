@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cases</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="game.js" defer></script>
+</head>
+
+<body>
+  <div class="app">
+    <div class="tabs-container">
+      <div class="tabs">
+        <div class="tabs-left" id="patientTabs"></div>
+        <div class="tabs-right">
+          <button class="tab" id="allPatientsTab" type="button">All patients</button>
+        </div>
+      </div>
+    </div>
+    <div class="journal-container">
+      <main class="journal" aria-label="Medical chart journal">
+        <section class="page left-page">
+          <h1 class="header-title">Medical Chart</h1>
+          <div class="identity col">
+            <div class="field">
+              <span class="field-label">Name</span>
+              <span class="field-value" id="fieldName"></span>
+            </div>
+            <div class="row">
+              <div class="photo-frame">
+                <img id="patientPhoto" src="assets/patient_01.png" alt="Patient portrait" />
+              </div>
+
+              <div class="fields">
+                <div class="field">
+                  <span class="field-label">Age</span><span class="field-value" id="fieldAge"></span>
+                </div>
+                <div class="field">
+                  <span class="field-label">Marital Status</span><span class="field-value" id="fieldMarital"></span>
+                </div>
+                <div class="field">
+                  <span class="field-label">Occupation</span><span class="field-value" id="fieldOccupation"></span>
+                </div>
+                <div class="field">
+                  <span class="field-label">Date of Admission</span><span class="field-value"
+                    id="fieldAdmission"></span>
+                </div>
+                <div class="field">
+                  <span class="field-label">Residence</span><span class="field-value" id="fieldResidence"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <section class="col">
+            <h2 class="section-title">Anamnesis Morbi</h2>
+            <div class="notes">
+              <div class="notes-block">
+                <div class="lined-row">
+                  <span class="lined-label">Harmful Habits</span>
+                  <span class="lined-value" id="fieldHarmfulHabits"></span>
+                </div>
+                <div class="multiline" id="harmfulHabitsLines"></div>
+              </div>
+              <div class="notes-block">
+                <div class="lined-row">
+                  <span class="lined-label">Clinical picture</span>
+                  <span class="lined-value" id="fieldClinicalPicture"></span>
+                </div>
+                <div class="multiline" id="clinicalPictureLines"></div>
+              </div>
+              <div class="notes-block">
+                <div class="lined-row">
+                  <span class="lined-label">Diagnosis</span>
+                  <span class="lined-value" id="fieldDiagnosis"></span>
+
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <div class="stamp">
+            <div class="signature"></div>
+          </div>
+        </section>
+
+        <section class="page right-page">
+          <div class="symptoms-paper" aria-hidden="true"></div>
+          <div class="symptoms-frame" aria-hidden="true"></div>
+          <div class="symptoms-panel">
+            <h2 class="symptoms-title">Suspected Symptoms</h2>
+
+            <div class="symptoms-scroll" id="symptomsScroll"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+</body>
+
+</html>
