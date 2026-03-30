@@ -626,7 +626,6 @@ body {
     flex-direction: column;
     height: 100%;
     padding: 1.2vw 1.35vw 1.6vw;
-    
 }
 
 .diagnoses-title {
@@ -662,9 +661,16 @@ body {
 }
 
 .diagnosis-entry {
+    margin-bottom: 0.2vw;
+
+}
+
+.diagnosis-entry:not(.is-active) {
     margin-bottom: 1.5vw;
 }
-.diagnosis-entry:hover {
+
+.diagnosis-entry:hover,
+.diagnosis-entry.is-active {
     transform: translateX(-1vw);
     cursor: pointer;
 }
@@ -680,6 +686,7 @@ body {
     font-size: 1.5vw;
     line-height: 1.2;
     color: #ccc1b2;
+    transition: color 180ms ease;
 }
 
 .diagnosis-question-mark {
@@ -688,6 +695,16 @@ body {
     background-image: url(assets/question_mark.png);
     aspect-ratio: 70/66;
     background-size: contain;
+}
+
+.diagnosis-entry.is-active .diagnosis-name,
+.diagnosis-entry.is-active .diagnosis-symptom-label,
+.diagnosis-entry.is-active .diagnosis-symptom-divider {
+    color: #fff;
+}
+
+.diagnosis-entry.is-active .diagnosis-question-mark {
+    filter: brightness(1.9);
 }
 
 .diagnosis-question-mark:hover {
@@ -708,6 +725,10 @@ body {
     margin-bottom: 0.15vw;
 }
 
+.diagnosis-symptom.highlight {
+    background-color: #ebda7d71;
+}
+
 .diagnosis-symptom-label {
     position: relative;
     z-index: 1;
@@ -716,12 +737,14 @@ body {
     font-size: 1.1vw;
     color: #cabfb0;
     padding: 0.12vw 0.22vw;
+    transition: color 180ms ease;
 }
 
 .diagnosis-symptom-divider {
     display: inline-block;
     color: rgba(208, 189, 163, 0.7);
     margin: 0 0.05vw;
+    transition: color 180ms ease;
 }
 
 .diagnosis-symptom-background {
@@ -760,10 +783,10 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    gap: 0.55vw;
 
-    width:  13.8vw;
+    width: 13.8vw;
     padding: 1vw 1.2vw;
-    margin-top: 1vw;
     border: 0;
     background: url("assets/button_idle.png") center / 100% 100% no-repeat;
     color: #e2d3c5;
@@ -771,12 +794,16 @@ body {
     font-size: 1.1vw;
     cursor: pointer;
     align-self: center;
+    margin-bottom: 0.8vw;
+}
+
+.diagnosis-lock-button[hidden] {
+    display: none;
 }
 
 .diagnosis-lock-button:hover {
     background-image: url("assets/button_hovered.png");
 }
-
 
 .diagnosis-lock-key {
     display: inline-flex;

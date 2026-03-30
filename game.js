@@ -552,6 +552,8 @@ const elements = {
     clinicalPictureLines: document.getElementById("clinicalPictureLines"),
     symptomsScroll: document.getElementById("symptomsScroll"),
     diagnosesScroll: document.getElementById("diagnosesScroll"),
+    diagnosisLockButton: document.querySelector(".diagnosis-lock-button"),
+    diagnosesPanelInner: document.querySelector(".diagnoses-panel-inner"),
     rightPage: document.querySelector(".right-page"),
 };
 
@@ -677,6 +679,35 @@ function getCombinedSymptoms() {
         patient.selectedSymptoms.forEach((symptom) => combined.add(symptom));
     });
     return combined;
+}
+
+function getDiagnosisByName(name) {
+    return diagnoses.find((diagnosis) => diagnosis.name === name) || null;
+}
+
+function getDiagnosisSymptomSet(name) {
+    const diagnosis = getDiagnosisByName(name);
+    return new Set(diagnosis?.symptoms || []);
+}
+
+function getEffectiveSelectedSymptoms(patient) {
+    const effectiveSymptoms = new Set(patient?.selectedSymptoms || []);
+    getDiagnosisSymptomSet(patient?.selectedDiagnosis).forEach((symptom) => {
+        effectiveSymptoms.add(symptom);
+    });
+    return effectiveSymptoms;
+}
+
+function getOrderedDiagnoses(selectedDiagnosisName = "") {
+    if (!selectedDiagnosisName) return diagnoses;
+
+    const selectedDiagnosis = getDiagnosisByName(selectedDiagnosisName);
+    if (!selectedDiagnosis) return diagnoses;
+
+    return [
+        selectedDiagnosis,
+        ...diagnoses.filter((diagnosis) => diagnosis.name !== selectedDiagnosisName),
+    ];
 }
 
 function setTextWithFallback(element, value, fallback = "") {
@@ -821,6 +852,7 @@ function renderLineGroup(inlineElement, multilineElement, values = []) {
 function initializePatientRecord(patient) {
     const record = {
         selectedSymptoms: [],
+        selectedDiagnosis: "",
         harmfulHabits: "",
         clinicalPicture: "",
         diagnosis: "",
@@ -900,7 +932,7 @@ function renderSymptoms() {
     const patient = getCurrentPatient();
     const selectedSet = state.showAllPatients
         ? getCombinedSymptoms()
-        : new Set(patient.selectedSymptoms);
+        : getEffectiveSelectedSymptoms(patient);
 
     elements.symptomsScroll.innerHTML = symptomGroups
         .map((group) => {
@@ -942,11 +974,7 @@ function renderSymptoms() {
 
     bindSymptomTooltips();
 
-    if (!state.showAllPatients) {
-        elements.symptomsScroll.querySelectorAll(".symptom-item input").forEach((input) => {
-            input.addEventListener("change", onSymptomToggle);
-        });
-    } else {
+    if (state.showAllPatients) {
         elements.symptomsScroll.querySelectorAll(".symptom-item").forEach((item) => {
             item.style.cursor = "default";
         });
@@ -968,20 +996,22 @@ function createDiagnosisSymptomItem(symptom, isSelected) {
 
 function renderDiagnoses() {
     const patient = getCurrentPatient();
-    const selectedSet = state.showAllPatients
+    const manuallySelectedSet = state.showAllPatients
         ? getCombinedSymptoms()
         : new Set(patient.selectedSymptoms);
+    const selectedDiagnosisName = state.showAllPatients ? "" : patient.selectedDiagnosis || "";
 
-    elements.diagnosesScroll.innerHTML = diagnoses
-        .map((diagnosis) => {
+    elements.diagnosesScroll.innerHTML = getOrderedDiagnoses(selectedDiagnosisName)
+        .map((diagnosis, index) => {
+            const isActiveDiagnosis = diagnosis.name === selectedDiagnosisName;
             const symptoms = diagnosis.symptoms
                 .map((symptom) =>
-                    createDiagnosisSymptomItem(symptom, selectedSet.has(symptom)),
+                    createDiagnosisSymptomItem(symptom, manuallySelectedSet.has(symptom)),
                 )
                 .join('<span class="diagnosis-symptom-divider">|</span>');
 
             return `
-              <section class="diagnosis-entry" data-diagnosis-name="${escapeAttribute(diagnosis.name)}">
+              <section class="diagnosis-entry ${isActiveDiagnosis ? "is-active" : ""}" data-diagnosis-name="${escapeAttribute(diagnosis.name)}">
                 <div class="diagnosis-name-row">
                   <h3 class="diagnosis-name">${escapeHtml(diagnosis.name)}</h3>
                   <div
@@ -990,12 +1020,26 @@ function renderDiagnoses() {
                 </div>
                 <div class="diagnosis-symptoms">${symptoms}</div>
               </section>
+              ${isActiveDiagnosis && index === 0 ? '<div class="diagnosis-lock-slot"></div>' : ''}
             `;
         })
         .join("");
+
+    if (elements.diagnosisLockButton) {
+        const lockSlot = elements.diagnosesScroll.querySelector(".diagnosis-lock-slot");
+        if (lockSlot) {
+            elements.diagnosisLockButton.hidden = false;
+            lockSlot.replaceWith(elements.diagnosisLockButton);
+        } else {
+            elements.diagnosisLockButton.hidden = true;
+            elements.diagnosesPanelInner?.appendChild(elements.diagnosisLockButton);
+        }
+    }
 }
 
 function onSymptomToggle(event) {
+    if (state.showAllPatients || !(event.target instanceof HTMLInputElement)) return;
+
     const currentPatient = getCurrentPatient();
     const label = event.target.closest(".symptom-item");
     const symptomName = label?.dataset.symptom;
@@ -1008,6 +1052,21 @@ function onSymptomToggle(event) {
         selected.delete(symptomName);
     }
     currentPatient.selectedSymptoms = [...selected];
+    render();
+}
+
+function onDiagnosisClick(event) {
+    if (state.showAllPatients) return;
+
+    const diagnosisEntry = event.target.closest(".diagnosis-entry");
+    if (!diagnosisEntry) return;
+
+    const diagnosisName = diagnosisEntry.dataset.diagnosisName;
+    if (!diagnosisName) return;
+
+    const currentPatient = getCurrentPatient();
+    currentPatient.selectedDiagnosis = diagnosisName;
+    render();
 }
 
 function updateActiveTabs() {
@@ -1029,6 +1088,13 @@ function render() {
 
 elements.harmfulHabitsLines.replaceChildren(...createBlankLines(EXTRA_LINE_COUNT));
 elements.clinicalPictureLines.replaceChildren(...createBlankLines(EXTRA_LINE_COUNT));
+
+if (elements.diagnosisLockButton) {
+    elements.diagnosisLockButton.hidden = true;
+}
+
+elements.symptomsScroll.addEventListener("change", onSymptomToggle);
+elements.diagnosesScroll.addEventListener("click", onDiagnosisClick);
 
 elements.symptomsScroll.addEventListener("scroll", () => {
     if (tooltipState.activeAnchor) {
@@ -1078,6 +1144,14 @@ window.medicalChartApp = {
         const patient = state.patients.find((entry) => entry.id === patientId);
         if (!patient || !Array.isArray(symptoms)) return false;
         patient.selectedSymptoms = [...new Set(symptoms)];
+        render();
+        return true;
+    },
+    selectDiagnosis(patientId, diagnosisName) {
+        const patient = state.patients.find((entry) => entry.id === patientId);
+        if (!patient) return false;
+        if (diagnosisName && !getDiagnosisByName(diagnosisName)) return false;
+        patient.selectedDiagnosis = diagnosisName || "";
         render();
         return true;
     },
