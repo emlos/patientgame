@@ -339,12 +339,57 @@ body {
     margin-bottom: 5%;
 }
 
+.symptom-icon-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    outline: none;
+}
+
 .symptom-group img {
     max-width: 4vw;
     margin-top: 0.12vw;
     justify-self: center;
     filter: brightness(0);
     opacity: 0.7;
+}
+
+.floating-symptom-tooltip {
+    display: none;
+    position: absolute;
+    width: 22vw;
+    padding-top: 1vw;
+    padding-left: 1.5vw;
+    padding-right: 1.5vw;
+    background-image: url("assets/paper_tooltip.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    color: #2f2721;
+    z-index: 20;
+    pointer-events: none;
+    aspect-ratio: 904/392;
+}
+
+.floating-symptom-tooltip.visible {
+    display: block;
+}
+
+.symptom-tooltip-title {
+    font-family: var(--typewriter);
+    font-size: 1vw;
+    font-weight: 600;
+    letter-spacing: -0.02vw;
+    line-height: 1.4;
+    margin-bottom: 0.8vw;
+    transform: scaleY(1.3);
+}
+
+.symptom-tooltip-body {
+    font-family: var(--typewriter);
+    font-size: 0.8vw;
+    line-height: 1.3;
+    letter-spacing: -0.03vw;
 }
 
 .symptom-content {
@@ -404,7 +449,7 @@ body {
 }
 
 .symptom-item:hover .symptom-label {
-    background-color: #ffffff3d;
+    background-color: #ffffff71;
 }
 
 .symptom-background {

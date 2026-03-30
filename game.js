@@ -153,6 +153,8 @@ const symptomGroups = [
         id: "central-nervous-system",
         title: "Central Nervous System",
         icon: "assets/icon_brain.png",
+        tooltip:
+            "The central nervous system includes the brain and spinal cord. Problems with them can range from mental disorders and behavioral changes to common headaches.",
         symptoms: [
             "Headache",
             "Bulimia",
@@ -166,6 +168,8 @@ const symptomGroups = [
         id: "vision",
         title: "Vision",
         icon: "assets/icon_eye.png",
+        tooltip:
+            "Eye afflictions can vary in nature and manifest both externally—in the organ's blood supply and physiology—and directly through the patient's sensations.",
         symptoms: [
             "Darkened eye capillaries",
             "Red eyes",
@@ -178,6 +182,8 @@ const symptomGroups = [
         id: "mucous-membranes",
         title: "Mucous Membranes",
         icon: "assets/icon_mouth.png",
+        tooltip:
+            "Mucous membranes line internal cavities such as auditory canals and airways, partially extending to their external openings, and also reduce friction—for instance, between bones.",
         symptoms: [
             "Sore throat",
             "Joint pain",
@@ -190,12 +196,16 @@ const symptomGroups = [
         id: "respiratory-system",
         title: "Respiratory System",
         icon: "assets/icon_lungs.png",
+        tooltip:
+            "Lung damage, besides obvious breathing difficulties, can manifest as visible signs on the patient's body—for example, due to oxygen depletion in the blood.",
         symptoms: ["Chest pain", "Cyanosis", "Cough", "Haemoptysis", "Difficulty breathing"],
     },
     {
         id: "circulatory-system",
         title: "Circulatory System",
         icon: "assets/icon_heart.png",
+        tooltip:
+            "The heart, blood vessels, and blood itself. Weak vessels lead to hemorrhages, poor blood circulation results in reduced vitality, and excessive blood flow causes heat in specific body parts.",
         symptoms: [
             "Severe pallor",
             "Hematomas",
@@ -211,6 +221,8 @@ const symptomGroups = [
         id: "skin",
         title: "Skin",
         icon: "assets/icon_skin.png",
+        tooltip:
+            "The body's protective covering. It's important to distinguish between skin lesions and external manifestations of failures in other organ systems.",
         symptoms: [
             "Eczema",
             "Ichthyosis",
@@ -227,6 +239,8 @@ const symptomGroups = [
         id: "gastrointestinal-tract",
         title: "Gastrointestinal Tract",
         icon: "assets/icon_stomach.png",
+        tooltip:
+            "A system of organs involved in food consumption and digestion, as well as waste elimination. Disorders can lead to changes in body composition and eating behavior.",
         symptoms: [
             "Abdominal pain",
             "Diarrhea",
@@ -264,10 +278,85 @@ const elements = {
     harmfulHabitsLines: document.getElementById("harmfulHabitsLines"),
     clinicalPictureLines: document.getElementById("clinicalPictureLines"),
     symptomsScroll: document.getElementById("symptomsScroll"),
+    rightPage: document.querySelector(".right-page"),
+};
+
+const tooltipState = {
+    activeAnchor: null,
+    element: null,
 };
 
 function escapeAttribute(value) {
     return String(value).replace(/"/g, "&quot;");
+}
+
+function hideFloatingSymptomTooltip() {
+    if (!tooltipState.element) return;
+
+    tooltipState.activeAnchor = null;
+    tooltipState.element.classList.remove("visible");
+    tooltipState.element.style.left = "";
+    tooltipState.element.style.top = "";
+}
+
+function getFloatingSymptomTooltip() {
+    if (tooltipState.element) return tooltipState.element;
+
+    const tooltip = document.createElement("div");
+    tooltip.className = "floating-symptom-tooltip";
+    tooltip.setAttribute("role", "tooltip");
+    tooltip.innerHTML = `
+      <div class="symptom-tooltip-title"></div>
+      <div class="symptom-tooltip-body"></div>
+    `;
+
+    elements.rightPage.appendChild(tooltip);
+    tooltipState.element = tooltip;
+    return tooltip;
+}
+
+function positionFloatingSymptomTooltip(anchor) {
+    if (!anchor || !elements.rightPage) return;
+
+    const title = anchor.dataset.tooltipTitle || "";
+    const body = anchor.dataset.tooltipBody || "";
+    const tooltip = getFloatingSymptomTooltip();
+
+    tooltip.querySelector(".symptom-tooltip-title").textContent = title;
+    tooltip.querySelector(".symptom-tooltip-body").textContent = body;
+
+    tooltip.classList.add("visible");
+    tooltip.style.visibility = "hidden";
+
+    const anchorRect = anchor.getBoundingClientRect();
+    const pageRect = elements.rightPage.getBoundingClientRect();
+    const tooltipRect = tooltip.getBoundingClientRect();
+    const gap = 12;
+    const minTop = 8;
+    const maxTop = Math.max(minTop, pageRect.height - tooltipRect.height - 8);
+
+    const left = anchorRect.left - pageRect.left - tooltipRect.width - gap;
+    const centeredTop = anchorRect.top - pageRect.top + anchorRect.height / 2 - tooltipRect.height / 2;
+    const top = Math.min(Math.max(centeredTop, minTop), maxTop);
+
+    tooltip.style.left = `${left}px`;
+    tooltip.style.top = `${top}px`;
+    tooltip.style.visibility = "visible";
+
+    tooltipState.activeAnchor = anchor;
+}
+
+function bindSymptomTooltips() {
+    hideFloatingSymptomTooltip();
+
+    elements.symptomsScroll.querySelectorAll(".symptom-icon-wrap").forEach((iconWrap) => {
+        const showTooltip = () => positionFloatingSymptomTooltip(iconWrap);
+
+        iconWrap.addEventListener("mouseenter", showTooltip);
+        iconWrap.addEventListener("focus", showTooltip);
+        iconWrap.addEventListener("mouseleave", hideFloatingSymptomTooltip);
+        iconWrap.addEventListener("blur", hideFloatingSymptomTooltip);
+    });
 }
 
 function buildTabs() {
@@ -545,7 +634,15 @@ function renderSymptoms() {
 
             return `
           <section class="symptom-group" data-group-id="${group.id}">
-            <img src="${group.icon}" alt="" aria-hidden="true" />
+            <div
+              class="symptom-icon-wrap"
+              tabindex="0"
+              aria-label="${escapeAttribute(group.title)} information"
+              data-tooltip-title="${escapeAttribute(group.title)}"
+              data-tooltip-body="${escapeAttribute(group.tooltip || "")}"
+            >
+              <img src="${group.icon}" alt="" aria-hidden="true" />
+            </div>
             <div class="symptom-content">
               <div class="symptom-heading">${group.title}</div>
               <div class="symptom-list">${items}</div>
@@ -559,6 +656,8 @@ function renderSymptoms() {
         const items = Array.from(list.querySelectorAll(".symptom-item"));
         if (items.length) items[items.length - 1].classList.add("is-last-visible");
     });
+
+    bindSymptomTooltips();
 
     if (!state.showAllPatients) {
         elements.symptomsScroll.querySelectorAll(".symptom-item input").forEach((input) => {
@@ -604,6 +703,18 @@ function render() {
 
 elements.harmfulHabitsLines.replaceChildren(...createBlankLines(EXTRA_LINE_COUNT));
 elements.clinicalPictureLines.replaceChildren(...createBlankLines(EXTRA_LINE_COUNT));
+
+elements.symptomsScroll.addEventListener("scroll", () => {
+    if (tooltipState.activeAnchor) {
+        positionFloatingSymptomTooltip(tooltipState.activeAnchor);
+    }
+});
+
+window.addEventListener("resize", () => {
+    if (tooltipState.activeAnchor) {
+        positionFloatingSymptomTooltip(tooltipState.activeAnchor);
+    }
+});
 
 buildTabs();
 render();
