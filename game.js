@@ -690,23 +690,20 @@ function getDiagnosisSymptomSet(name) {
     return new Set(diagnosis?.symptoms || []);
 }
 
-function getEffectiveSelectedSymptoms(patient) {
-    const effectiveSymptoms = new Set(patient?.selectedSymptoms || []);
-    getDiagnosisSymptomSet(patient?.selectedDiagnosis).forEach((symptom) => {
-        effectiveSymptoms.add(symptom);
-    });
-    return effectiveSymptoms;
+function getAlphabeticalDiagnoses() {
+    return [...diagnoses].sort((left, right) => left.name.localeCompare(right.name));
 }
 
 function getOrderedDiagnoses(selectedDiagnosisName = "") {
-    if (!selectedDiagnosisName) return diagnoses;
+    const alphabeticalDiagnoses = getAlphabeticalDiagnoses();
+    if (!selectedDiagnosisName) return alphabeticalDiagnoses;
 
     const selectedDiagnosis = getDiagnosisByName(selectedDiagnosisName);
-    if (!selectedDiagnosis) return diagnoses;
+    if (!selectedDiagnosis) return alphabeticalDiagnoses;
 
     return [
         selectedDiagnosis,
-        ...diagnoses.filter((diagnosis) => diagnosis.name !== selectedDiagnosisName),
+        ...alphabeticalDiagnoses.filter((diagnosis) => diagnosis.name !== selectedDiagnosisName),
     ];
 }
 
@@ -914,11 +911,11 @@ function renderLeftPage() {
     setTextWithFallback(elements.fieldDiagnosis, active.diagnosis || " ", " ");
 }
 
-function createSymptomItem(symptom, checked, patientId, groupId) {
+function createSymptomItem(symptom, checked, highlighted, patientId, groupId) {
     const symptomId = `${patientId}-${groupId}-${symptom.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
     return `
 
-        <label class="symptom-item" data-symptom="${escapeAttribute(symptom)}">
+        <label class="symptom-item ${highlighted ? "highlight" : ""}" data-symptom="${escapeAttribute(symptom)}">
           <input type="checkbox" id="${symptomId}" ${checked ? "checked" : ""} />
           <span class="symptom-label">${symptom}</span>
           <div class="symptom-background"><span></span><span></span><span></span></div>
@@ -930,17 +927,22 @@ function createSymptomItem(symptom, checked, patientId, groupId) {
 
 function renderSymptoms() {
     const patient = getCurrentPatient();
-    const selectedSet = state.showAllPatients
+    const manuallySelectedSet = state.showAllPatients
         ? getCombinedSymptoms()
-        : getEffectiveSelectedSymptoms(patient);
+        : new Set(patient?.selectedSymptoms || []);
+    const highlightedSet = state.showAllPatients
+        ? new Set()
+        : getDiagnosisSymptomSet(patient?.selectedDiagnosis);
 
     elements.symptomsScroll.innerHTML = symptomGroups
         .map((group) => {
+            const groupHasHighlight = group.symptoms.some((symptom) => highlightedSet.has(symptom));
             const items = group.symptoms
                 .map((symptom) =>
                     createSymptomItem(
                         symptom,
-                        selectedSet.has(symptom),
+                        manuallySelectedSet.has(symptom),
+                        highlightedSet.has(symptom),
                         state.showAllPatients ? "all" : patient.id,
                         group.id,
                     ),
@@ -948,7 +950,7 @@ function renderSymptoms() {
                 .join("<div class='symptom-divider'>|</div>");
 
             return `
-          <section class="symptom-group" data-group-id="${group.id}">
+          <section class="symptom-group ${groupHasHighlight ? "has-highlight" : ""}" data-group-id="${group.id}">
             <div
               class="symptom-icon-wrap"
               tabindex="0"
@@ -1065,7 +1067,8 @@ function onDiagnosisClick(event) {
     if (!diagnosisName) return;
 
     const currentPatient = getCurrentPatient();
-    currentPatient.selectedDiagnosis = diagnosisName;
+    currentPatient.selectedDiagnosis =
+        currentPatient.selectedDiagnosis === diagnosisName ? "" : diagnosisName;
     render();
 }
 

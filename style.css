@@ -377,11 +377,17 @@ body {
 }
 
 .symptom-group {
+    position: relative;
     display: flex;
     flex-direction: row;
     column-gap: 1%;
     align-items: center;
     margin-bottom: 5%;
+    isolation: isolate;
+}
+
+.symptom-group.has-highlight .symptom-icon-wrap {
+   background: radial-gradient(circle,rgba(226, 198, 155, 0.45) 0%, rgba(255, 255, 0, 0) 70%);
 }
 
 .symptom-icon-wrap {
@@ -495,6 +501,10 @@ body {
 
 .symptom-item:hover .symptom-label {
     background-color: #ffffff71;
+}
+
+.symptom-item.highlight .symptom-label {
+    background-color: rgba(255, 226, 182, 0.377);
 }
 
 .symptom-background {
@@ -662,7 +672,6 @@ body {
 
 .diagnosis-entry {
     margin-bottom: 0.2vw;
-
 }
 
 .diagnosis-entry:not(.is-active) {
