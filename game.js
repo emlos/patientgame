@@ -3,6 +3,151 @@ const EXTRA_LINE_COUNT = 2;
 const INLINE_GAP_MIN = 2;
 const INLINE_GAP_MAX = 6;
 
+const INITIAL_PATIENT_COUNT = 3;
+
+const RANDOM_PATIENT_NAMES = [
+    "Anna",
+    "Altyn",
+    "Toya",
+    "Khulan",
+    "Lun",
+    "Burduk",
+    "Tolkowy",
+    "Oktai",
+    "Laska",
+    "Mariya",
+    "Mishka",
+    "Nara",
+    "Nika",
+    "Bobok",
+    "Pavel",
+    "Shchur",
+    "Lyuta",
+    "Fila",
+    "Vera",
+    "Yargi",
+    "Olusha",
+    "Zhytochnik",
+    "Yunat",
+    "Emilia",
+    "Sotnik",
+    "Tuutei",
+    "Voronok",
+    "Astrild",
+    "Chernyak",
+    "Myrosya",
+    "Petrel",
+    "Khariton",
+    "Aristarkh",
+    "Sakh Men",
+    "Poshinok",
+    "Kira",
+    "Marfa",
+    "Lyudmila",
+    "Yegor",
+];
+
+const RANDOM_PATIENT_LAST_NAMES = [
+    "Ankudinov",
+    "Baskakov",
+    "Gantimurova",
+    "Goncharova",
+    "Grishin",
+    "Kabanov",
+    "Karmin",
+    "Kharitonov",
+    "Kudrin",
+    "Mishchenko",
+    "Naraeva",
+    "Sablin",
+    "Sotnik",
+    "Yunatov",
+];
+
+const RANDOM_MARITAL_STATUSES = ["single", "married", "widowed", "betrothed", "divorced"];
+
+const RANDOM_OCCUPATIONS = [
+    "abbatoir clerk",
+    "apothecary assistant",
+    "bakery hand",
+    "bookkeeper",
+    "carter",
+    "chimney sweep",
+    "dock porter",
+    "dressmaker",
+    "factory stoker",
+    "ferryman",
+    "gravedigger's assistant",
+    "laundress",
+    "night watchman",
+    "rail yard mechanic",
+    "schoolteacher",
+    "seamstress",
+    "soap boiler",
+    "station clerk",
+    "tallow renderer",
+    "tannery worker",
+    "town orderly",
+    "warehouse tallyman",
+    "aspiring herb bride",
+    "works for Stamatin",
+    "dancer",
+    "drunk",
+    "shopkeeper",
+    "dyer",
+    "street sweeper",
+    "cutpurse thug",
+    "Termitary guard",
+    "vagrant",
+    "apprentice herbalist",
+    "apprentice midwife",
+    "manual laborer",
+    "bandit",
+    "wannabe scientist",
+    "wannabe artist",
+    "'artist'",
+    "studies botany",
+    "studies anatomy",
+    "studies medicine",
+    "shop-floor worker",
+    "charlatan healer",
+    "dealer",
+    "housewife",
+    "does not remember",
+    "unclear (?)",
+    "academy student",
+    "herb bride",
+    "accountant",
+    "solider",
+    "teacher",
+    "keeps bees",
+];
+
+const RANDOM_RESIDENCES = [
+    "Tanners",
+    "Skinners",
+    "Hindquarters",
+    "Factory",
+    "The Crude Sprawl",
+    "Flank",
+    "Chine",
+    "Backbone",
+    "Marrow",
+    "Gut",
+    "Maw",
+    "Spleen",
+    "Warehouses",
+    "Atrium",
+    "Bridge Square",
+    "Shekhen steppe village",
+    " " //empty on purpose
+];
+
+const PHOTO_PATHS = Array.from({ length: 24 }, (_, index) => {
+    return `assets/patient_${String(index + 1).padStart(2, "0")}.png`;
+});
+
+
 const symptomGroups = [
     {
         id: "central-nervous-system",
@@ -95,80 +240,7 @@ const symptomGroups = [
     },
 ];
 
-const patients = [
-    {
-        id: "emilia",
-        tabLabel: "Emilia",
-        name: "Emilia",
-        age: 25,
-        maritalStatus: "single",
-        occupation: "studies botany",
-        admissionDay: 7,
-        admissionText: "7th day of the plague",
-        residence: "Maw",
-        photo: "assets/patient_01.png",
-        harmfulHabits: "",
-        clinicalPicture: "",
-        diagnosis: "",
-        selectedSymptoms: [
-            "Bulimia",
-            "Hallucinations",
-            "Hydrophobia",
-            "Memory lapses",
-            "Red eyes",
-            "Photophobia",
-            "Lip lesions",
-            "Difficulty breathing",
-            "Rapid pulse",
-            "Ichthyosis",
-            "Rash",
-            "Yellowing of the skin",
-        ],
-    },
-    {
-        id: "tuutei",
-        tabLabel: "Tuutei",
-        name: "Tuutei",
-        age: 39,
-        maritalStatus: "married",
-        occupation: "aspiring Herb Bride",
-        admissionDay: 7,
-        admissionText: "7th day of the plague",
-        residence: "Shekhen, steppe village",
-        photo: "assets/patient_02.png",
-        harmfulHabits: "",
-        clinicalPicture: "",
-        diagnosis: "",
-        selectedSymptoms: [
-            "Sore throat",
-            "Joint pain",
-            "Redness around the nose",
-            "Hearing impairment",
-            "Severe pallor",
-            "Weakness",
-            "Stone disease",
-            "Itchy skin",
-            "Ulcers",
-            "Loss of appetite",
-        ],
-    },
-    {
-        id: "martin",
-        tabLabel: "Martin",
-        name: "Martin",
-        age: 43,
-        maritalStatus: "widower",
-        occupation: "shop-floor worker",
-        admissionDay: 7,
-        admissionText: "7th day of the plague",
-        residence: "The Crude Sprawl",
-        photo: "assets/patient_03.png",
-        harmfulHabits: "",
-        clinicalPicture: "Diarrhea",
-        diagnosis: "",
-        selectedSymptoms: ["Headache", "Diarrhea", "Cough", "Rapid pulse", "Fever"],
-    },
-];
+const patients = createInitialPatients(INITIAL_PATIENT_COUNT);
 
 const state = {
     currentPatientId: patients[0].id,
@@ -279,6 +351,72 @@ function fillInitialLineState(value) {
 
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function getRandomItem(values) {
+    return values[getRandomInt(0, values.length - 1)];
+}
+
+function shuffle(values) {
+    const nextValues = [...values];
+    for (let index = nextValues.length - 1; index > 0; index -= 1) {
+        const swapIndex = getRandomInt(0, index);
+        [nextValues[index], nextValues[swapIndex]] = [nextValues[swapIndex], nextValues[index]];
+    }
+    return nextValues;
+}
+
+function slugify(value) {
+    return String(value)
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+}
+
+function createRandomPatientName() {
+    const firstName = getRandomItem(RANDOM_PATIENT_NAMES);
+    const hasLastName = Math.random() < 0.35;
+    return hasLastName ? `${firstName} ${getRandomItem(RANDOM_PATIENT_LAST_NAMES)}` : firstName;
+}
+
+function createRandomPatient(existingIds = new Set(), photoPool = PHOTO_PATHS) {
+    const name = createRandomPatientName();
+    const baseId = slugify(name) || `patient-${Date.now()}`;
+    let nextId = baseId;
+    let suffix = 2;
+
+    while (existingIds.has(nextId)) {
+        nextId = `${baseId}-${suffix}`;
+        suffix += 1;
+    }
+
+    return {
+        id: nextId,
+        tabLabel: name.split(" ")[0],
+        name,
+        age: getRandomInt(18, 46),
+        maritalStatus: getRandomItem(RANDOM_MARITAL_STATUSES),
+        occupation: getRandomItem(RANDOM_OCCUPATIONS),
+        admissionDay: 7,
+        admissionText: "7th day of the plague",
+        residence: getRandomItem(RANDOM_RESIDENCES),
+        photo: photoPool.length ? photoPool.pop() : getRandomItem(PHOTO_PATHS),
+        harmfulHabits: "",
+        clinicalPicture: "",
+        diagnosis: "",
+        selectedSymptoms: [],
+    };
+}
+
+function createInitialPatients(count) {
+    const existingIds = new Set();
+    const photoPool = shuffle(PHOTO_PATHS);
+
+    return Array.from({ length: count }, () => {
+        const patient = createRandomPatient(existingIds, photoPool);
+        existingIds.add(patient.id);
+        return patient;
+    });
 }
 
 function appendEntryToRandomLine(lines, entry) {
@@ -512,6 +650,16 @@ window.medicalChartApp = {
         buildTabs();
         render();
         return true;
+    },
+    addRandomPatient() {
+        const existingIds = new Set(state.patients.map((patient) => patient.id));
+        const patient = initializePatientRecord(createRandomPatient(existingIds));
+        state.patients.push(patient);
+        state.currentPatientId = patient.id;
+        state.showAllPatients = false;
+        buildTabs();
+        render();
+        return structuredClone(patient);
     },
     selectPatient(patientId) {
         if (patientId === "all") {
