@@ -254,6 +254,279 @@ const symptomGroups = [
     },
 ];
 
+const diagnoses = [
+    {
+        name: "Acute Bronchopathy",
+        symptoms: [
+            "Headache",
+            "Loss of coordination",
+            "Chest pain",
+            "Fever",
+            "Difficulty breathing",
+            "Cough",
+            "Haemoptysis",
+            "Redness around the nose",
+            "Severe pallor",
+            "Burning sensation in the heart",
+            "Weakness",
+        ],
+    },
+    {
+        name: "Anemic Vasculopathy",
+        symptoms: [
+            "Hydrophobia",
+            "Headache",
+            "Red eyes",
+            "Dystrophy",
+            "Cyanosis",
+            "Hematomas",
+            "Severe pallor",
+            "Fever",
+        ],
+    },
+    {
+        name: "Bonkowski's Fever",
+        symptoms: [
+            "Bulimia",
+            "Visual impairment",
+            "Photophobia",
+            "Fever",
+            "Dystrophy",
+            "Abdominal pain",
+            "Belching",
+            "Weakness",
+            "Nausea and vomiting",
+            "Burning sensation in the heart",
+        ],
+    },
+    {
+        name: "Bradycardia",
+        symptoms: ["Weakness", "Chest pain", "Visual impairment"],
+    },
+    {
+        name: "Burning Fever",
+        symptoms: [
+            "Hallucinations",
+            "Headache",
+            "Memory lapses",
+            "Fever",
+            "Loss of coordination",
+            "Diarrhea",
+            "Lip lesions",
+            "Ulcers",
+            "Eczema",
+            "Rapid pulse",
+        ],
+    },
+    {
+        name: "Consumption",
+        symptoms: [
+            "Loss of coordination",
+            "Dystrophy",
+            "Chest pain",
+            "Fever",
+            "Difficulty breathing",
+            "Cough",
+            "Haemoptysis",
+            "Ichthyosis",
+            "Weakness",
+        ],
+    },
+    {
+        name: "Fruit Typhoid",
+        symptoms: [
+            "Hallucinations",
+            "Irregular pupil shape",
+            "Chest pain",
+            "Visual impairment",
+            "Hearing impairment",
+            "Rash",
+            "Vein damage",
+            "Weakness",
+            "Slow pulse",
+        ],
+    },
+    {
+        name: "Hepatitis",
+        symptoms: [
+            "Visual impairment",
+            "Dystrophy",
+            "Stone disease",
+            "Nausea and vomiting",
+            "Itchy skin",
+            "Eczema",
+            "Yellowing of the skin",
+            "Weakness",
+        ],
+    },
+    {
+        name: "Influenza",
+        symptoms: [
+            "Headache",
+            "Nausea and vomiting",
+            "Chest pain",
+            "Sore throat",
+            "Weakness",
+            "Fever",
+            "Photophobia",
+            "Loss of appetite",
+            "Difficulty breathing",
+            "Cough",
+            "Redness around the nose",
+            "Hearing impairment",
+            "Joint pain",
+        ],
+    },
+    {
+        name: "Ink Syndrome",
+        symptoms: [
+            "Hallucinations",
+            "Headache",
+            "Memory lapses",
+            "Irregular pupil shape",
+            "Darkened eye capillaries",
+            "Photophobia",
+            "Difficulty breathing",
+            "Chest pain",
+            "Cyanosis",
+            "Vein damage",
+            "Hematomas",
+        ],
+    },
+    {
+        name: "Lymphotonitis",
+        symptoms: [
+            "Headache",
+            "Loss of coordination",
+            "Itchy skin",
+            "Ulcers",
+            "Insect bites",
+            "Rapid pulse",
+            "Skin redness",
+            "Weakness",
+        ],
+    },
+    {
+        name: "Measles",
+        symptoms: [
+            "Headache",
+            "Red eyes",
+            "Photophobia",
+            "Diarrhea",
+            "Sore throat",
+            "Skin redness",
+            "Weakness",
+            "Fever",
+        ],
+    },
+    {
+        name: "Nephropathia epidemica",
+        symptoms: [
+            "Hydrophobia",
+            "Headache",
+            "Bulimia",
+            "Photophobia",
+            "Visual impairment",
+            "Heartburn",
+            "Geophagia",
+            "Rash",
+            "Chest pain",
+            "Nausea and vomiting",
+            "Skin redness",
+            "Rapid pulse",
+            "Weakness",
+            "Fever",
+        ],
+    },
+    {
+        name: "Pulmomucous Syndrome",
+        symptoms: [
+            "Loss of coordination",
+            "Diarrhea",
+            "Loss of appetite",
+            "Difficulty breathing",
+            "Redness around the nose",
+            "Lip lesions",
+            "Hallucinations",
+            "Hearing impairment",
+        ],
+    },
+    {
+        name: "Serpent Syndrome",
+        symptoms: [
+            "Loss of coordination",
+            "Red eyes",
+            "Diarrhea",
+            "Visual impairment",
+            "Dystrophy",
+            "Lip lesions",
+            "Difficulty breathing",
+            "Ichthyosis",
+        ],
+    },
+    {
+        name: "Steppe Dryness",
+        symptoms: [
+            "Red eyes",
+            "Photophobia",
+            "Difficulty breathing",
+            "Sore throat",
+            "Joint pain",
+            "Ichthyosis",
+            "Rapid pulse",
+        ],
+    },
+    {
+        name: "Steppe Gastrodermal Fever",
+        symptoms: [
+            "Heartburn",
+            "Geophagia",
+            "Abdominal pain",
+            "Rash",
+            "Dystrophy",
+            "Belching",
+            "Nausea and vomiting",
+            "Difficulty breathing",
+            "Insect bites",
+        ],
+    },
+    {
+        name: "Stoneskin",
+        symptoms: ["Photophobia", "Stone disease", "Slow pulse"],
+    },
+    {
+        name: "Tularemia",
+        symptoms: [
+            "Hallucinations",
+            "Headache",
+            "Nausea and vomiting",
+            "Skin redness",
+            "Ulcers",
+            "Insect bites",
+            "Weakness",
+            "Fever",
+        ],
+    },
+    {
+        name: "Twyrine Syndrome",
+        symptoms: [
+            "Hallucinations",
+            "Headache",
+            "Memory lapses",
+            "Loss of coordination",
+            "Red eyes",
+            "Photophobia",
+            "Darkened eye capillaries",
+            "Nausea and vomiting",
+            "Yellowing of the skin",
+            "Skin redness",
+            "Vein damage",
+            "Hematomas",
+            "Weakness",
+        ],
+    },
+].sort((left, right) => left.name.localeCompare(right.name));
+
 const patients = createInitialPatients(INITIAL_PATIENT_COUNT);
 
 const state = {
@@ -278,6 +551,7 @@ const elements = {
     harmfulHabitsLines: document.getElementById("harmfulHabitsLines"),
     clinicalPictureLines: document.getElementById("clinicalPictureLines"),
     symptomsScroll: document.getElementById("symptomsScroll"),
+    diagnosesScroll: document.getElementById("diagnosesScroll"),
     rightPage: document.querySelector(".right-page"),
 };
 
@@ -288,6 +562,15 @@ const tooltipState = {
 
 function escapeAttribute(value) {
     return String(value).replace(/"/g, "&quot;");
+}
+
+function escapeHtml(value) {
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
 }
 
 function hideFloatingSymptomTooltip() {
@@ -670,6 +953,48 @@ function renderSymptoms() {
     }
 }
 
+function createDiagnosisSymptomItem(symptom, isSelected) {
+    return `
+      <span class="diagnosis-symptom ${isSelected ? "is-selected" : ""}">
+        <span class="diagnosis-symptom-label">${escapeHtml(symptom)}</span>
+        ${
+            isSelected
+                ? '<span class="diagnosis-symptom-background"><span></span><span></span><span></span></span>'
+                : ""
+        }
+      </span>
+    `;
+}
+
+function renderDiagnoses() {
+    const patient = getCurrentPatient();
+    const selectedSet = state.showAllPatients
+        ? getCombinedSymptoms()
+        : new Set(patient.selectedSymptoms);
+
+    elements.diagnosesScroll.innerHTML = diagnoses
+        .map((diagnosis) => {
+            const symptoms = diagnosis.symptoms
+                .map((symptom) =>
+                    createDiagnosisSymptomItem(symptom, selectedSet.has(symptom)),
+                )
+                .join('<span class="diagnosis-symptom-divider">|</span>');
+
+            return `
+              <section class="diagnosis-entry" data-diagnosis-name="${escapeAttribute(diagnosis.name)}">
+                <div class="diagnosis-name-row">
+                  <h3 class="diagnosis-name">${escapeHtml(diagnosis.name)}</h3>
+                  <div
+                    class="diagnosis-question-mark"
+                  ></div>
+                </div>
+                <div class="diagnosis-symptoms">${symptoms}</div>
+              </section>
+            `;
+        })
+        .join("");
+}
+
 function onSymptomToggle(event) {
     const currentPatient = getCurrentPatient();
     const label = event.target.closest(".symptom-item");
@@ -698,6 +1023,7 @@ function updateActiveTabs() {
 function render() {
     renderLeftPage();
     renderSymptoms();
+    renderDiagnoses();
     updateActiveTabs();
 }
 

@@ -11,6 +11,8 @@
 </head>
 
 <body>
+  <div class="vignette"></div>
+  <div class="background"></div>
   <div class="app">
     <div class="tabs-container">
       <div class="tabs">
@@ -21,7 +23,8 @@
       </div>
     </div>
     <div class="journal-container">
-      <main class="journal" aria-label="Medical chart journal">
+      <div class="journal-layout">
+        <main class="journal" aria-label="Medical chart journal">
         <section class="page left-page">
           <h1 class="header-title">Medical Chart</h1>
           <div class="identity col">
@@ -97,7 +100,19 @@
             <div class="symptoms-scroll" id="symptomsScroll"></div>
           </div>
         </section>
-      </main>
+        </main>
+
+        <aside class="diagnoses-panel" aria-label="Diagnoses">
+          <div class="diagnoses-panel-inner">
+            <h2 class="diagnoses-title">Diagnoses</h2>
+            <div class="diagnoses-scroll" id="diagnosesScroll"></div>
+            <button class="diagnosis-lock-button" >
+              <span class="diagnosis-lock-key">X</span>
+              <span>Lock in diagnosis</span>
+            </button>
+          </div>
+        </aside>
+      </div>
     </div>
   </div>
 </body>
