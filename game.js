@@ -1,3 +1,8 @@
+const APPENDABLE_LINE_FIELDS = new Set(["harmfulHabits", "clinicalPicture"]);
+const EXTRA_LINE_COUNT = 2;
+const INLINE_GAP_MIN = 2;
+const INLINE_GAP_MAX = 6;
+
 const symptomGroups = [
     {
         id: "central-nervous-system",
@@ -168,7 +173,7 @@ const patients = [
 const state = {
     currentPatientId: patients[0].id,
     showAllPatients: false,
-    patients: structuredClone(patients),
+    patients: patients.map(initializePatientRecord),
 };
 
 const elements = {
@@ -234,13 +239,92 @@ function setTextWithFallback(element, value, fallback = "") {
     element.innerHTML = value ? `<em>${value}</em>` : fallback;
 }
 
+function normalizeFieldEntries(value) {
+    if (Array.isArray(value)) {
+        return value.map((entry) => String(entry).trim()).filter(Boolean);
+    }
+
+    if (value === null || value === undefined) {
+        return [];
+    }
+
+    return String(value)
+        .split(/\n+/)
+        .map((entry) => entry.trim())
+        .filter(Boolean);
+}
+
 function createBlankLines(count) {
     return Array.from({ length: count }, () => {
         const line = document.createElement("div");
         line.className = "lined-value";
-        line.innerHTML = "&nbsp;";
+        line.textContent = " ";
         return line;
     });
+}
+
+function createEmptyLineState() {
+    return Array.from({ length: EXTRA_LINE_COUNT + 1 }, () => "");
+}
+
+function fillInitialLineState(value) {
+    const lines = createEmptyLineState();
+    normalizeFieldEntries(value)
+        .slice(0, lines.length)
+        .forEach((entry, index) => {
+            lines[index] = entry;
+        });
+    return lines;
+}
+
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function appendEntryToRandomLine(lines, entry) {
+    const cleanEntry = String(entry ?? "").trim();
+    if (!cleanEntry) return lines;
+
+    const nextLines = Array.isArray(lines) && lines.length ? [...lines] : createEmptyLineState();
+
+    const targetIndex = getRandomInt(0, nextLines.length - 1);
+    if (!nextLines[targetIndex]) {
+        nextLines[targetIndex] = cleanEntry;
+        return nextLines;
+    }
+
+    const gap = " ".repeat(getRandomInt(INLINE_GAP_MIN, INLINE_GAP_MAX));
+    nextLines[targetIndex] += `${gap}${cleanEntry}`;
+    return nextLines;
+}
+
+function renderLineGroup(inlineElement, multilineElement, values = []) {
+    const [firstLine = "", ...extraLines] = values;
+    inlineElement.textContent = firstLine || " ";
+
+    const lineElements = multilineElement.querySelectorAll(".lined-value");
+    lineElements.forEach((lineElement, index) => {
+        lineElement.textContent = extraLines[index] || " ";
+    });
+}
+
+function initializePatientRecord(patient) {
+    const record = {
+        selectedSymptoms: [],
+        harmfulHabits: "",
+        clinicalPicture: "",
+        diagnosis: "",
+        admissionDay: 7,
+        admissionText: "7th day of the plague",
+        photo: "assets/patient_01.png",
+        ...patient,
+    };
+
+    record.harmfulHabitsLines = fillInitialLineState(record.harmfulHabits);
+    record.clinicalPictureLines = fillInitialLineState(record.clinicalPicture);
+    record.diagnosis = normalizeFieldEntries(record.diagnosis).join(" ");
+
+    return record;
 }
 
 function renderLeftPage() {
@@ -256,8 +340,12 @@ function renderLeftPage() {
               admissionText: `${state.patients.length} charts open`,
               residence: "district-wide review",
               photo: state.patients[0].photo,
-              harmfulHabits: "Hook: setPatientField(patientId, 'harmfulHabits', value)",
-              clinicalPicture: "Hook: setPatientField(patientId, 'clinicalPicture', value)",
+              harmfulHabitsLines: fillInitialLineState(
+                  "Hook: setPatientField(patientId, 'harmfulHabits', value)",
+              ),
+              clinicalPictureLines: fillInitialLineState(
+                  "Hook: setPatientField(patientId, 'clinicalPicture', value)",
+              ),
               diagnosis: "Hook: setPatientField(patientId, 'diagnosis', value)",
           }
         : patient;
@@ -271,12 +359,17 @@ function renderLeftPage() {
     setTextWithFallback(elements.fieldOccupation, active.occupation);
     setTextWithFallback(elements.fieldAdmission, active.admissionText);
     setTextWithFallback(elements.fieldResidence, active.residence);
-    setTextWithFallback(elements.fieldHarmfulHabits, active.harmfulHabits);
-    setTextWithFallback(elements.fieldClinicalPicture, active.clinicalPicture);
-    setTextWithFallback(elements.fieldDiagnosis, active.diagnosis);
-
-    elements.harmfulHabitsLines.replaceChildren(...createBlankLines(isAllPatients ? 1 : 2));
-    elements.clinicalPictureLines.replaceChildren(...createBlankLines(isAllPatients ? 1 : 2));
+    renderLineGroup(
+        elements.fieldHarmfulHabits,
+        elements.harmfulHabitsLines,
+        active.harmfulHabitsLines,
+    );
+    renderLineGroup(
+        elements.fieldClinicalPicture,
+        elements.clinicalPictureLines,
+        active.clinicalPictureLines,
+    );
+    setTextWithFallback(elements.fieldDiagnosis, active.diagnosis || " ", " ");
 }
 
 function createSymptomItem(symptom, checked, patientId, groupId) {
@@ -299,21 +392,20 @@ function renderSymptoms() {
         ? getCombinedSymptoms()
         : new Set(patient.selectedSymptoms);
 
-    elements.symptomsScroll.innerHTML =
-        symptomGroups
-            .map((group) => {
-                const items = group.symptoms
-                    .map((symptom) =>
-                        createSymptomItem(
-                            symptom,
-                            selectedSet.has(symptom),
-                            state.showAllPatients ? "all" : patient.id,
-                            group.id,
-                        ),
-                    )
-                    .join("<div class='symptom-divider'>|</div>");
+    elements.symptomsScroll.innerHTML = symptomGroups
+        .map((group) => {
+            const items = group.symptoms
+                .map((symptom) =>
+                    createSymptomItem(
+                        symptom,
+                        selectedSet.has(symptom),
+                        state.showAllPatients ? "all" : patient.id,
+                        group.id,
+                    ),
+                )
+                .join("<div class='symptom-divider'>|</div>");
 
-                return `
+            return `
           <section class="symptom-group" data-group-id="${group.id}">
             <img src="${group.icon}" alt="" aria-hidden="true" />
             <div class="symptom-content">
@@ -322,8 +414,8 @@ function renderSymptoms() {
             </div>
           </section>
         `;
-            })
-            .join("") ;
+        })
+        .join("");
 
     elements.symptomsScroll.querySelectorAll(".symptom-list").forEach((list) => {
         const items = Array.from(list.querySelectorAll(".symptom-item"));
@@ -372,6 +464,9 @@ function render() {
     updateActiveTabs();
 }
 
+elements.harmfulHabitsLines.replaceChildren(...createBlankLines(EXTRA_LINE_COUNT));
+elements.clinicalPictureLines.replaceChildren(...createBlankLines(EXTRA_LINE_COUNT));
+
 buildTabs();
 render();
 
@@ -381,8 +476,26 @@ window.medicalChartApp = {
     },
     setPatientField(patientId, field, value) {
         const patient = state.patients.find((entry) => entry.id === patientId);
-        if (!patient) return false;
-        patient[field] = value;
+        if (!patient || !(field in patient)) return false;
+
+        if (APPENDABLE_LINE_FIELDS.has(field)) {
+            const entries = normalizeFieldEntries(value);
+            const lineField = `${field}Lines`;
+            patient[field] = entries.join("\n");
+            patient[lineField] =
+                Array.isArray(patient[lineField]) && patient[lineField].length
+                    ? [...patient[lineField]]
+                    : createEmptyLineState();
+
+            entries.forEach((entry) => {
+                patient[lineField] = appendEntryToRandomLine(patient[lineField], entry);
+            });
+        } else if (field === "diagnosis") {
+            patient.diagnosis = normalizeFieldEntries(value).join(" ");
+        } else {
+            patient[field] = value;
+        }
+
         render();
         return true;
     },
@@ -395,16 +508,7 @@ window.medicalChartApp = {
     },
     addPatient(patient) {
         if (!patient?.id) return false;
-        state.patients.push({
-            selectedSymptoms: [],
-            harmfulHabits: "",
-            clinicalPicture: "",
-            diagnosis: "",
-            admissionDay: 7,
-            admissionText: "7th day of the plague",
-            photo: "assets/patient_01.png",
-            ...patient,
-        });
+        state.patients.push(initializePatientRecord(patient));
         buildTabs();
         render();
         return true;
