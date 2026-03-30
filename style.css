@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Give+You+Glory&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Give+You+Glory&display=swap");
 
 :root {
     --bg: #111;
@@ -15,7 +15,7 @@
     --line-dot-size: 7px 3px;
     --typewriter: "Courier New", Courier, monospace;
     --sans: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    --cursive:"Give You Glory", cursive;
+    --cursive: "Give You Glory", cursive;
 }
 
 * {
@@ -214,7 +214,6 @@ body {
     background-position: left calc(100%);
     padding-left: 1vw;
     width: 100%;
-
 }
 
 .field-value em,
@@ -245,10 +244,14 @@ body {
     width: 100%;
 }
 
+.notes-block .lined-value,
+.notes-block .lined-row {
+    height: 2.3vw;
+}
+
 .lined-row {
     display: flex;
     flex-direction: row;
-    margin-top: 1vw;
 }
 
 .lined-label {
@@ -476,12 +479,37 @@ body {
     aspect-ratio: 410/196;
     position: absolute;
     bottom: 0;
-    right: 1vw;
+    right: 8vw;
     background-image: url(assets/signature_border.png);
     background-size: contain;
-    height: 6vw;
+    height: 5vw;
 
-    transform: rotate(-4deg);
+    transform: rotate(-7deg) scaleY(0.9);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    align-items: center;
+    padding-bottom: 1vw;
+}
+
+.stamp.appear {
+    animation: stamp-appear 400ms ease-out forwards;
+}
+
+.stamp.done {
+    opacity: 0.5;
+    animation: stamp-pulse 2s ease-in-out infinite alternate;
+}
+
+.stamp.approved {
+    opacity: 1;
+}
+
+.stamp > p {
+    font-family: var(--sans);
+    font-weight: 300;
+    font-size: 0.7vw;
 }
 .signature {
     aspect-ratio: 408/168;
@@ -489,7 +517,7 @@ body {
     background-image: url(assets/signature.png);
     background-size: contain;
     height: 5vw;
-    top: 1vw;
+    top: 0.1vw;
     margin-left: auto;
     margin-right: auto;
 }
