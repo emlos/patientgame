@@ -8,12 +8,118 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="animations.css" />
   <script src="game.js" defer></script>
+
+  <script>
+
+
+    function preloadImagesWithLoading(files, basePath = "assets/") {
+      const loadingEl = document.querySelector(".loading");
+      const fillEl = loadingEl.querySelector(".loading-fill");
+
+      let loadedCount = 0;
+      const totalCount = files.length;
+
+      function updateLoadingBar() {
+        const percent = totalCount === 0 ? 100 : (loadedCount / totalCount) * 100;
+        fillEl.style.clipPath = `inset(${100 - percent}% 0 0 0)`;
+      }
+
+      updateLoadingBar();
+
+      return Promise.allSettled(
+        files.map((file) => {
+          return new Promise((resolve) => {
+            const img = new Image();
+
+            const done = async () => {
+              loadedCount++;
+              updateLoadingBar();
+              resolve(file);
+
+            };
+
+            img.onload = done;
+            img.onerror = done;
+            img.src = basePath + file;
+          });
+        }),
+      );
+    }
+
+    const imageFiles = [
+      "load_empty.png",
+      "load_full.png",
+      "background.JPG",
+      "button_hovered.png",
+      "button_idle.png",
+      "clip.png",
+      "feedback_bg.png",
+      "icon_brain.png",
+      "icon_eye.png",
+      "icon_heart.png",
+      "icon_lungs.png",
+      "icon_mouth.png",
+      "icon_skin.png",
+      "icon_stomach.png",
+      "journal.png",
+      "journal_symptoms_bg.png",
+      "notebook_dots.png",
+      "paper_tooltip.png",
+      "patient_01.png",
+      "patient_02.png",
+      "patient_03.png",
+      "patient_04.png",
+      "patient_05.png",
+      "patient_06.png",
+      "patient_07.png",
+      "patient_08.png",
+      "patient_09.png",
+      "patient_10.png",
+      "patient_11.png",
+      "patient_12.png",
+      "patient_13.png",
+      "patient_14.png",
+      "patient_15.png",
+      "patient_16.png",
+      "patient_17.png",
+      "patient_18.png",
+      "patient_19.png",
+      "patient_20.png",
+      "patient_21.png",
+      "patient_22.png",
+      "patient_23.png",
+      "patient_24.png",
+      "patient_little.png",
+      "photo_border.png",
+      "question_mark.png",
+      "question_mark_hover.png",
+      "signature.png",
+      "signature_border.png",
+      "stamp_dead.png",
+      "stamp_ok.png",
+      "symptoms_border.png",
+      "symptom_selected_border_left.png",
+      "symptom_selected_border_middle.png",
+      "symptom_selected_border_right.png",
+      "symptom_selected_border_white_left.png",
+      "symptom_selected_border_white_middle.png",
+      "symptom_selected_border_white_right.png",
+      "tab_active.png",
+      "tab_inactive.png",
+    ];
+
+
+  </script>
 </head>
 
+<div class="loading">
+  <div class="loading-fill"></div>
+</div>
+
 <body>
-  <div class="vignette"></div>
-  <div class="background"></div>
-  <div class="app">
+  <div style="display: none;" class="vignette"></div>
+  <div style="display: none;" class="background"></div>
+  <div style="display: none;" class="app">
     <div class="tabs-container">
       <div class="tabs">
         <div class="tabs-left" id="patientTabs"></div>
@@ -25,88 +131,87 @@
     <div class="journal-container">
       <div class="journal-layout">
         <main class="journal" aria-label="Medical chart journal">
-        <section class="page left-page">
-          <h1 class="header-title">Medical Chart</h1>
-          <div class="identity col">
-            <div class="field">
-              <span class="field-label">Name</span>
-              <span class="field-value" id="fieldName"></span>
+          <section class="page left-page">
+            <h1 class="header-title">Medical Chart</h1>
+            <div class="identity col">
+              <div class="field">
+                <span class="field-label">Name</span>
+                <span class="field-value" id="fieldName"></span>
+              </div>
+              <div class="row">
+                <div class="photo-frame">
+                  <img id="patientPhoto" src="assets/patient_01.png" alt="Patient portrait" />
+                </div>
+
+                <div class="fields">
+                  <div class="field">
+                    <span class="field-label">Age</span><span class="field-value" id="fieldAge"></span>
+                  </div>
+                  <div class="field">
+                    <span class="field-label">Marital Status</span><span class="field-value" id="fieldMarital"></span>
+                  </div>
+                  <div class="field">
+                    <span class="field-label">Occupation</span><span class="field-value" id="fieldOccupation"></span>
+                  </div>
+                  <div class="field">
+                    <span class="field-label">Date of Admission</span><span class="field-value"
+                      id="fieldAdmission"></span>
+                  </div>
+                  <div class="field">
+                    <span class="field-label">Residence</span><span class="field-value" id="fieldResidence"></span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="row">
-              <div class="photo-frame">
-                <img id="patientPhoto" src="assets/patient_01.png" alt="Patient portrait" />
-              </div>
 
-              <div class="fields">
-                <div class="field">
-                  <span class="field-label">Age</span><span class="field-value" id="fieldAge"></span>
+            <section class="col">
+              <h2 class="section-title">Anamnesis Morbi</h2>
+              <div class="notes">
+                <div class="notes-block">
+                  <div class="lined-row">
+                    <span class="lined-label">Harmful Habits</span>
+                    <span class="lined-value" id="fieldHarmfulHabits"></span>
+                  </div>
+                  <div class="multiline" id="harmfulHabitsLines"></div>
                 </div>
-                <div class="field">
-                  <span class="field-label">Marital Status</span><span class="field-value" id="fieldMarital"></span>
+                <div class="notes-block">
+                  <div class="lined-row">
+                    <span class="lined-label">Clinical picture</span>
+                    <span class="lined-value" id="fieldClinicalPicture"></span>
+                  </div>
+                  <div class="multiline" id="clinicalPictureLines"></div>
                 </div>
-                <div class="field">
-                  <span class="field-label">Occupation</span><span class="field-value" id="fieldOccupation"></span>
-                </div>
-                <div class="field">
-                  <span class="field-label">Date of Admission</span><span class="field-value"
-                    id="fieldAdmission"></span>
-                </div>
-                <div class="field">
-                  <span class="field-label">Residence</span><span class="field-value" id="fieldResidence"></span>
+                <div class="notes-block">
+                  <div class="lined-row">
+                    <span class="lined-label">Diagnosis</span>
+                    <span class="lined-value" id="fieldDiagnosis"></span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </section>
 
-          <section class="col">
-            <h2 class="section-title">Anamnesis Morbi</h2>
-            <div class="notes">
-              <div class="notes-block">
-                <div class="lined-row">
-                  <span class="lined-label">Harmful Habits</span>
-                  <span class="lined-value" id="fieldHarmfulHabits"></span>
-                </div>
-                <div class="multiline" id="harmfulHabitsLines"></div>
-              </div>
-              <div class="notes-block">
-                <div class="lined-row">
-                  <span class="lined-label">Clinical picture</span>
-                  <span class="lined-value" id="fieldClinicalPicture"></span>
-                </div>
-                <div class="multiline" id="clinicalPictureLines"></div>
-              </div>
-              <div class="notes-block">
-                <div class="lined-row">
-                  <span class="lined-label">Diagnosis</span>
-                  <span class="lined-value" id="fieldDiagnosis"></span>
-
-                </div>
-              </div>
+            <div class="stamp appear">
+              <div class="signature"></div>
+              <p>Diagnosis determined</p>
             </div>
           </section>
 
-          <div class="stamp appear">
-            <div class="signature"></div>
-            <p>Diagnosis determined</p>
-          </div>
-        </section>
+          <section class="page right-page">
+            <div class="symptoms-paper" aria-hidden="true"></div>
+            <div class="symptoms-frame" aria-hidden="true"></div>
+            <div class="symptoms-panel">
+              <h2 class="symptoms-title">Suspected Symptoms</h2>
 
-        <section class="page right-page">
-          <div class="symptoms-paper" aria-hidden="true"></div>
-          <div class="symptoms-frame" aria-hidden="true"></div>
-          <div class="symptoms-panel">
-            <h2 class="symptoms-title">Suspected Symptoms</h2>
-
-            <div class="symptoms-scroll" id="symptomsScroll"></div>
-          </div>
-        </section>
+              <div class="symptoms-scroll" id="symptomsScroll"></div>
+            </div>
+          </section>
         </main>
 
         <aside class="diagnoses-panel" aria-label="Diagnoses">
           <div class="diagnoses-panel-inner">
             <h2 class="diagnoses-title">Diagnoses</h2>
             <div class="diagnoses-scroll col" id="diagnosesScroll"></div>
-            <button class="diagnosis-lock-button" >
+            <button class="diagnosis-lock-button">
               <span class="diagnosis-lock-key">X</span>
               <span>Lock in diagnosis</span>
             </button>
@@ -115,6 +220,16 @@
       </div>
     </div>
   </div>
+
+  <script>
+    preloadImagesWithLoading(imageFiles).then(() => {
+      console.log("All preload attempts finished");
+      document.querySelector(".loading").style.display = "none";
+      document.querySelector(".vignette").style.display = "";
+      document.querySelector(".background").style.display = "";
+      document.querySelector(".app").style.display = "flex";
+    });
+  </script>
 </body>
 
 </html>

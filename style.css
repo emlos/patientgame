@@ -44,6 +44,23 @@ body {
     place-items: center;
     width: 100vw;
     height: 100vh;
+    background: #111;
+}
+
+.loading {
+    position: relative;
+    width: 20vw;
+    aspect-ratio: 1;
+    background: url("assets/load_empty.png") center / 100% 100% no-repeat;
+}
+
+.loading-fill {
+    position: absolute;
+    inset: 0;
+    background: url("assets/load_full.png") center / 100% 100% no-repeat;
+
+    clip-path: inset(100% 0 0 0);
+    transition: clip-path 0.15s linear;
 }
 
 .background {
@@ -387,7 +404,7 @@ body {
 }
 
 .symptom-group.has-highlight .symptom-icon-wrap {
-   background: radial-gradient(circle,rgba(226, 198, 155, 0.45) 0%, rgba(255, 255, 0, 0) 70%);
+    background: radial-gradient(circle, rgba(226, 198, 155, 0.45) 0%, rgba(255, 255, 0, 0) 70%);
 }
 
 .symptom-icon-wrap {
@@ -732,6 +749,8 @@ body {
     display: inline-flex;
     align-items: center;
     margin-bottom: 0.15vw;
+    padding-bottom: 0.1vw;
+    padding-top: 0.1vw;
 }
 
 .diagnosis-symptom.highlight {
@@ -766,6 +785,8 @@ body {
 
 .diagnosis-symptom.is-selected .diagnosis-symptom-background {
     display: flex;
+    width: 100%;
+    height: 100%;
 }
 
 .diagnosis-symptom-background span:nth-child(1) {
@@ -804,6 +825,7 @@ body {
     cursor: pointer;
     align-self: center;
     margin-bottom: 0.8vw;
+    filter: brightness(1.6);
 }
 
 .diagnosis-lock-button[hidden] {
