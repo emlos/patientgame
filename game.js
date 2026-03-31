@@ -555,6 +555,7 @@ const elements = {
     diagnosisLockButton: document.querySelector(".diagnosis-lock-button"),
     diagnosesPanelInner: document.querySelector(".diagnoses-panel-inner"),
     rightPage: document.querySelector(".right-page"),
+    stamp: document.querySelector(".stamp"),
 };
 
 const tooltipState = {
@@ -654,6 +655,7 @@ function buildTabs() {
         button.textContent = patient.tabLabel;
         button.dataset.patientId = patient.id;
         button.addEventListener("click", () => {
+            settlePatientStamp(getCurrentPatient());
             state.showAllPatients = false;
             state.currentPatientId = patient.id;
             render();
@@ -662,6 +664,7 @@ function buildTabs() {
     });
 
     elements.allPatientsTab.onclick = () => {
+        settlePatientStamp(getCurrentPatient());
         state.showAllPatients = true;
         render();
     };
@@ -688,6 +691,129 @@ function getDiagnosisByName(name) {
 function getDiagnosisSymptomSet(name) {
     const diagnosis = getDiagnosisByName(name);
     return new Set(diagnosis?.symptoms || []);
+}
+
+function clearStampTransition(patient) {
+    if (!patient) return;
+    patient.stampNextState = "";
+    patient.stampNextAnimation = "";
+}
+
+function settlePatientStamp(patient) {
+    if (!patient) return;
+
+    if (patient.stampAnimation === "fade") {
+        patient.stampState = patient.stampNextState || (patient.selectedDiagnosis ? "preliminary" : "hidden");
+    }
+
+    if (!patient.stampState) {
+        patient.stampState = patient.selectedDiagnosis ? "preliminary" : "hidden";
+    }
+
+    patient.stampAnimation = "";
+    clearStampTransition(patient);
+}
+
+function updatePatientDiagnosisSelection(patient, diagnosisName) {
+    if (!patient || patient.diagnosisLocked) return false;
+
+    const nextDiagnosisName = diagnosisName || "";
+    const previousDiagnosisName = patient.selectedDiagnosis || "";
+
+    if (previousDiagnosisName === nextDiagnosisName && patient.stampAnimation !== "fade") {
+        return false;
+    }
+
+    patient.selectedDiagnosis = nextDiagnosisName;
+    clearStampTransition(patient);
+
+    if (!previousDiagnosisName && nextDiagnosisName) {
+        patient.stampState = "preliminary";
+        patient.stampAnimation = "appear";
+        return true;
+    }
+
+    if (previousDiagnosisName && !nextDiagnosisName) {
+        patient.stampState = "preliminary";
+        patient.stampAnimation = "fade";
+        patient.stampNextState = "hidden";
+        return true;
+    }
+
+    if (previousDiagnosisName && nextDiagnosisName && previousDiagnosisName !== nextDiagnosisName) {
+        patient.stampState = "preliminary";
+        patient.stampAnimation = "fade";
+        patient.stampNextState = "preliminary";
+        patient.stampNextAnimation = "appear";
+        return true;
+    }
+
+    if (!nextDiagnosisName) {
+        patient.stampState = "hidden";
+        patient.stampAnimation = "";
+    }
+
+    return true;
+}
+
+function lockPatientDiagnosis(patient) {
+    if (!patient || patient.diagnosisLocked || !patient.selectedDiagnosis) return false;
+
+    patient.diagnosisLocked = true;
+    patient.stampState = "approved";
+    patient.stampAnimation = "";
+    clearStampTransition(patient);
+    return true;
+}
+
+function renderStamp() {
+    if (!elements.stamp) return;
+
+    if (state.showAllPatients) {
+        elements.stamp.className = "stamp";
+        return;
+    }
+
+    const patient = getCurrentPatient();
+    const stampClasses = ["stamp"];
+
+    if (patient?.stampState === "preliminary") {
+        stampClasses.push("preliminary");
+    } else if (patient?.stampState === "approved") {
+        stampClasses.push("approved");
+    }
+
+    if (patient?.stampAnimation === "appear") {
+        stampClasses.push("appear");
+    } else if (patient?.stampAnimation === "fade") {
+        stampClasses.push("fade");
+    }
+
+    elements.stamp.className = stampClasses.join(" " );
+}
+
+function onStampAnimationEnd(event) {
+    if (event.target !== elements.stamp || state.showAllPatients) return;
+
+    const patient = getCurrentPatient();
+    if (!patient) return;
+
+    if (event.animationName === "stamp-appear" && patient.stampAnimation === "appear") {
+        patient.stampAnimation = "";
+        renderStamp();
+        return;
+    }
+
+    if (event.animationName === "stamp-fade" && patient.stampAnimation === "fade") {
+        const nextState = patient.stampNextState || (patient.selectedDiagnosis ? "preliminary" : "hidden");
+        const nextAnimation = patient.stampNextAnimation || "";
+
+        patient.stampState = nextState;
+        patient.stampAnimation = nextAnimation;
+        clearStampTransition(patient);
+
+        renderStamp();
+    }
 }
 
 function getAlphabeticalDiagnoses() {
@@ -856,6 +982,11 @@ function initializePatientRecord(patient) {
         admissionDay: 7,
         admissionText: "7th day of the plague",
         photo: "assets/patient_01.png",
+        diagnosisLocked: false,
+        stampState: "hidden",
+        stampAnimation: "",
+        stampNextState: "",
+        stampNextAnimation: "",
         ...patient,
     };
 
@@ -1002,6 +1133,7 @@ function renderDiagnoses() {
         ? getCombinedSymptoms()
         : new Set(patient.selectedSymptoms);
     const selectedDiagnosisName = state.showAllPatients ? "" : patient.selectedDiagnosis || "";
+    const isDiagnosisLocked = !state.showAllPatients && !!patient?.diagnosisLocked;
 
     elements.diagnosesScroll.innerHTML = getOrderedDiagnoses(selectedDiagnosisName)
         .map((diagnosis, index) => {
@@ -1027,13 +1159,19 @@ function renderDiagnoses() {
         })
         .join("");
 
+    elements.diagnosesScroll.classList.toggle("is-locked", isDiagnosisLocked);
+
     if (elements.diagnosisLockButton) {
         const lockSlot = elements.diagnosesScroll.querySelector(".diagnosis-lock-slot");
         if (lockSlot) {
             elements.diagnosisLockButton.hidden = false;
+            elements.diagnosisLockButton.disabled = isDiagnosisLocked;
+            elements.diagnosisLockButton.classList.toggle("is-hidden", isDiagnosisLocked);
             lockSlot.replaceWith(elements.diagnosisLockButton);
         } else {
             elements.diagnosisLockButton.hidden = true;
+            elements.diagnosisLockButton.disabled = true;
+            elements.diagnosisLockButton.classList.remove("is-hidden");
             elements.diagnosesPanelInner?.appendChild(elements.diagnosisLockButton);
         }
     }
@@ -1067,8 +1205,20 @@ function onDiagnosisClick(event) {
     if (!diagnosisName) return;
 
     const currentPatient = getCurrentPatient();
-    currentPatient.selectedDiagnosis =
-        currentPatient.selectedDiagnosis === diagnosisName ? "" : diagnosisName;
+    if (currentPatient?.diagnosisLocked) return;
+
+    const nextDiagnosisName = currentPatient.selectedDiagnosis === diagnosisName ? "" : diagnosisName;
+    if (!updatePatientDiagnosisSelection(currentPatient, nextDiagnosisName)) return;
+
+    render();
+}
+
+function onDiagnosisLock() {
+    if (state.showAllPatients) return;
+
+    const currentPatient = getCurrentPatient();
+    if (!lockPatientDiagnosis(currentPatient)) return;
+
     render();
 }
 
@@ -1086,6 +1236,7 @@ function render() {
     renderLeftPage();
     renderSymptoms();
     renderDiagnoses();
+    renderStamp();
     updateActiveTabs();
 }
 
@@ -1094,6 +1245,13 @@ elements.clinicalPictureLines.replaceChildren(...createBlankLines(EXTRA_LINE_COU
 
 if (elements.diagnosisLockButton) {
     elements.diagnosisLockButton.hidden = true;
+    elements.diagnosisLockButton.disabled = true;
+    elements.diagnosisLockButton.classList.remove("is-hidden");
+    elements.diagnosisLockButton.addEventListener("click", onDiagnosisLock);
+}
+
+if (elements.stamp) {
+    elements.stamp.addEventListener("animationend", onStampAnimationEnd);
 }
 
 elements.symptomsScroll.addEventListener("change", onSymptomToggle);
@@ -1154,7 +1312,13 @@ window.medicalChartApp = {
         const patient = state.patients.find((entry) => entry.id === patientId);
         if (!patient) return false;
         if (diagnosisName && !getDiagnosisByName(diagnosisName)) return false;
-        patient.selectedDiagnosis = diagnosisName || "";
+        if (!updatePatientDiagnosisSelection(patient, diagnosisName || "")) return false;
+        render();
+        return true;
+    },
+    lockDiagnosis(patientId) {
+        const patient = state.patients.find((entry) => entry.id === patientId);
+        if (!lockPatientDiagnosis(patient)) return false;
         render();
         return true;
     },
@@ -1176,6 +1340,8 @@ window.medicalChartApp = {
         return structuredClone(patient);
     },
     selectPatient(patientId) {
+        settlePatientStamp(getCurrentPatient());
+
         if (patientId === "all") {
             state.showAllPatients = true;
             render();

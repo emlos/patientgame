@@ -598,23 +598,37 @@ body {
     justify-content: end;
     align-items: center;
     padding-bottom: 1vw;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
 }
 
-.stamp.appear {
-    animation: stamp-appear 500ms ease-out forwards;
-}
-
+.stamp.preliminary,
+.stamp.approved,
 .stamp.fade {
-    animation: stamp-fade 400ms ease-out forwards;
+    visibility: visible;
 }
 
 .stamp.preliminary {
     opacity: 0.5;
+}
+
+.stamp.preliminary:not(.appear):not(.fade) {
     animation: stamp-pulse 2s ease-in-out infinite alternate;
+}
+
+.stamp.preliminary.appear {
+    animation: stamp-appear 500ms ease-out forwards;
+}
+
+.stamp.preliminary.fade {
+    animation: stamp-fade 400ms ease-out forwards;
 }
 
 .stamp.approved {
     opacity: 1;
+    visibility: visible;
+    animation: none;
 }
 
 .stamp > p {
@@ -826,7 +840,16 @@ body {
     display: none;
 }
 
-.diagnosis-lock-button:hover {
+.diagnosis-lock-button.is-hidden {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.diagnosis-lock-button:disabled {
+    cursor: default;
+}
+
+.diagnosis-lock-button:not(:disabled):hover {
     background-image: url("assets/button_hovered.png");
 }
 
@@ -841,4 +864,10 @@ body {
     color: #4b3a2c;
     font-size: 0.82vw;
     line-height: 1;
+}
+
+
+.diagnoses-scroll.is-locked .diagnosis-entry {
+    pointer-events: none;
+    cursor: default;
 }
