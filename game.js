@@ -140,13 +140,12 @@ const RANDOM_RESIDENCES = [
     "Atrium",
     "Bridge Square",
     "Shekhen steppe village",
-    " " //empty on purpose
+    " ", //empty on purpose
 ];
 
 const PHOTO_PATHS = Array.from({ length: 24 }, (_, index) => {
     return `assets/patient_${String(index + 1).padStart(2, "0")}.png`;
 });
-
 
 const symptomGroups = [
     {
@@ -257,6 +256,12 @@ const symptomGroups = [
 const diagnoses = [
     {
         name: "Acute Bronchopathy",
+        description: [
+            "A subtype of diseases caused by Yersinia pestis. Transmitted by direct contact of the bacteria with mucous membranes, e.g., drinking from a dirty cup, smoking a pipe, or rinsing eyes with contaminated water.",
+            "The acute phase starts with fever, muscle weakness, and a burning sensation in the heart area, followed by haemoptysis. The waning acute phase is marked by headaches and bursting pain in the chest. As the acute phase subsides, it becomes challenging to accurately diagnose. Without treatment, the patient dies within 2-3 days.",
+        ],
+        riskGroups: "People living in crowded conditions.",
+        showcaseSymptoms: ["Haemoptysis", "Chest pain", "Headache"],
         symptoms: [
             "Headache",
             "Loss of coordination",
@@ -273,6 +278,12 @@ const diagnoses = [
     },
     {
         name: "Anemic Vasculopathy",
+        description: [
+            "An infectious disease caused by microorganisms from steppe soil entering the bloodstream. Cases of airborne transmission are also reported but require confirmation. The infection leads to anemia, which can manifest as patient pallor, muscle weakness, and weight loss. Occasionally, patients may experience localized bleeding and hematomas. Acute cases display burst capillaries on the eyes and high fever.",
+        ],
+        riskGroups:
+            "Peasant plowmen, gravediggers, and other various types of people working with soil.",
+        showcaseSymptoms: ["Dystrophy", "Cyanosis", "Red eyes"],
         symptoms: [
             "Hydrophobia",
             "Headache",
@@ -286,6 +297,11 @@ const diagnoses = [
     },
     {
         name: "Bonkowski's Fever",
+        description: [
+            "An extremely dangerous and contagious disease described in detail by Dr. Bonkowski. Epidemics of this disease can occur but are characteristic only for tropical inhabitants, i.e., those in hot and humid climates. Within the borders of the Empire, cases of this disease are extremely rare. Typically, the afflicted are pilgrims visiting southern countries for religious purposes or merchants involved in trade with tropical lands. The virus rapidly affects the lungs, leading to breathing difficulties. The heart muscle is then targeted, and at this stage, the disease is practically incurable.",
+        ],
+        riskGroups: "Pilgrims, traders, travelers visiting tropical countries.",
+        showcaseSymptoms: ["Dystrophy"],
         symptoms: [
             "Bulimia",
             "Visual impairment",
@@ -300,11 +316,13 @@ const diagnoses = [
         ],
     },
     {
-        name: "Bradycardia",
-        symptoms: ["Weakness", "Chest pain", "Visual impairment"],
-    },
-    {
         name: "Burning Fever",
+        description: [
+            "A highly contagious disease caused by the neurolcera virus. Transmitted through contact and breathing.",
+            "Initially, the disease presents with fever, headache, and abdominal pain. Later, ulcers and eczema appear on the skin. Itchy herpetic rashes are observed. The patient experiences psychosis. Frequent fatal outcomes among densely living and working population.",
+        ],
+        riskGroups: "People living in crowded conditions, people living in unsanitary conditions.",
+        showcaseSymptoms: ["Ulcers", "Eczema", "Lip lesions"],
         symptoms: [
             "Hallucinations",
             "Headache",
@@ -320,6 +338,12 @@ const diagnoses = [
     },
     {
         name: "Consumption",
+        description: [
+            "A chronic infectious disease. Mainly prevalent in countries with average to low living standards, where it takes on high mortality rates. The disease is caused by the bacterium Mycobacterium tuberculosis, for which humans are the main reservoir. It primarily affects the lungs and is transmitted through coughing, singing, and other respiratory actions. ",
+            "Initially, patients complain of muscle weakness and weight loss. Cough and night fever are often among the initial symptoms. Skin dryness is present. In severe cases, haemoptysis occurs. High case fatality rate.",
+        ],
+        riskGroups: "Children, people with weakened immunity, smokers, drug addicts.",
+        showcaseSymptoms: ["Dystrophy", "Ichthyosis"],
         symptoms: [
             "Loss of coordination",
             "Dystrophy",
@@ -334,6 +358,12 @@ const diagnoses = [
     },
     {
         name: "Fruit Typhoid",
+        description: [
+            "An infectious disease caused by bacteria found in sweet fruits and berries. The presumed natural reservoir is fruit-worm larvae.",
+            "In the early stages, the primary symptoms are muscle weakness and chest pain, as the disease targets heart tissue. This is followed by gradual deterioration of vision and hearing. In later stages, a black rash appears, blood vessels darken—primarily on the hands and feet—and the shape of the pupil changes.",
+        ],
+        riskGroups: "Peasants, gardeners, fruit vendors, cooks, and berry pickers.",
+        showcaseSymptoms: ["Rash", "Vein damage"],
         symptoms: [
             "Hallucinations",
             "Irregular pupil shape",
@@ -348,6 +378,12 @@ const diagnoses = [
     },
     {
         name: "Hepatitis",
+        description: [
+            "Liver necrosis. Can be caused by viral infection. It can also develop in individuals who abuse alcohol or drugs.",
+            "The preicteric phase of hepatitis is characterized by weight loss, nausea, and diarrhea. Sometimes skin itching and eczema occur. The icteric phase is marked by jaundice, with previous symptoms gradually regressing. The patient complains of pain in the liver area. Poor hygiene and substance abuse significantly increase the risk of death. Fatal in acute disease.",
+        ],
+        riskGroups: "Alcoholics, drug addicts, people with autoimmune disorders.",
+        showcaseSymptoms: ["Yellowing of the skin", "Dystrophy", "Eczema"],
         symptoms: [
             "Visual impairment",
             "Dystrophy",
@@ -361,6 +397,12 @@ const diagnoses = [
     },
     {
         name: "Influenza",
+        description: [
+            "An acute respiratory disease caused by the influenza virus. Affects the respiratory tract. Considered the most severe among acute respiratory viral infections.",
+            "The disease manifests suddenly with muscle weakness, fever, cough, sore throat, severe headache, and photophobia. Upper respiratory tract involvement starts with cough, chest pain, and runny nose. Later, throat pain, shortness of breath, and hoarseness appear. Rare strains of influenza can have gastrointestinal symptoms. Mortality from influenza increases in crowded conditions or during epidemics.",
+        ],
+        riskGroups: "Pregnant women, smokers, people living in crowded conditions.",
+        showcaseSymptoms: ["Redness around the nose", "Cough", "Sore throat"],
         symptoms: [
             "Headache",
             "Nausea and vomiting",
@@ -379,6 +421,12 @@ const diagnoses = [
     },
     {
         name: "Ink Syndrome",
+        description: [
+            "Infection often found in sewage and stagnant water bodies. It can also be present in fish tissues. The virus alters the blood's chemical composition, resulting in the darkening of blood vessels in the eyes and throughout the body's circulatory system. Hallucinations and breathing difficulties in patients may indicate brain damage, and therefore an almost inevitable fatal outcome.",
+        ],
+        riskGroups:
+            "People interacting with specific steppe water bodies of Gorkhon (washerwomen, shepherds, steppe dwellers).",
+        showcaseSymptoms: ["Vein damage", "Darkened eye capillaries", "Cyanosis"],
         symptoms: [
             "Hallucinations",
             "Headache",
@@ -395,6 +443,12 @@ const diagnoses = [
     },
     {
         name: "Lymphotonitis",
+        description: [
+            "A natural focal disease caused by Yersinia pestis bacteria. Infection occurs through contact with infected patients, contaminated water, or mosquito bites carrying the bacteria.",
+            "The infected experience muscle weakness, headache, and in some cases, dizziness. The bite area becomes itchy. Later, a rash with ulcer formation appears on the body. The patient experiences constant itching; ulcers may bleed. Compromised immunity and constant scratching of the ulcers can lead to complications and often death.",
+        ],
+        riskGroups: "People living in crowded conditions.",
+        showcaseSymptoms: ["Insect bites", "Ulcers"],
         symptoms: [
             "Headache",
             "Loss of coordination",
@@ -408,6 +462,12 @@ const diagnoses = [
     },
     {
         name: "Measles",
+        description: [
+            "A highly infectious viral disease with a very high transmission rate. It is marked by fever, inflammation of mucous tissues, conjunctivitis, and skin rash. The Metropolitan Infectionists Society suggests cattle as the virus source, but this theory doesn't have the unanimous support of the medical community. If the body overcomes the disease, then immunity develops, preventing future infections. However, fatal outcomes are possible, especially for malnourished patients without access to proper treatment and care.",
+        ],
+        riskGroups:
+            "Children, as well as people spending a lot of time with children (teachers, mothers, mentors).",
+        showcaseSymptoms: ["Skin redness", "Red eyes", "Sore throat"],
         symptoms: [
             "Headache",
             "Red eyes",
@@ -421,6 +481,12 @@ const diagnoses = [
     },
     {
         name: "Nephropathia epidemica",
+        description: [
+            "A disease caused by a group of viruses, varying with the epidemic focus. Humans contract the virus from animals and their waste.",
+            "The disease begins acutely with fever, rapid heartbeat, nausea, and/or vomiting. Accompanied by headache and photophobia. After 3 days, a rash appears on the skin and facial flushing becomes evident. The disease causes internal bleeding, leading to patient's death.",
+        ],
+        riskGroups: "People in contact with animals, rural residents.",
+        showcaseSymptoms: ["Skin redness", "Rash"],
         symptoms: [
             "Hydrophobia",
             "Headache",
@@ -440,6 +506,12 @@ const diagnoses = [
     },
     {
         name: "Pulmomucous Syndrome",
+        description: [
+            "An infectious disease caused by consuming water from contaminated steppe sources. The initial blow of the illness affects the human nervous system. In the next stage, it manifests through gastric disorders and ulcerative lesions on the lips. Subsequently, the patient loses appetite and experiences obsessive hallucinations. In advanced cases, breathing difficulties and deafness are observed, and at this stage, a fatal outcome is almost inevitable.",
+        ],
+        riskGroups:
+            "People interacting with the waters of Gorkhon (washerwomen, water carriers, shepherds, steppe dwellers).",
+        showcaseSymptoms: ["Redness around the nose", "Lip lesions"],
         symptoms: [
             "Loss of coordination",
             "Diarrhea",
@@ -453,6 +525,11 @@ const diagnoses = [
     },
     {
         name: "Serpent Syndrome",
+        description: [
+            "An infectious disease resulting from skin infections caused by the fungus hyacinthum petasum. The fungus is typical for eastern and southern provinces; cases of infection in the Empire's north are unknown. Presumably, the fungus affects impoverished people weakened by malnutrition. However, native steppe peoples seem to possess a certain immunity to this fungus. Northerners moving to steppe provinces lack such immunity and are more frequently affected. The disease starts with localized skin lesions that can later cover a significant portion of the patient's skin. Untreated cases lead to exhaustion, digestive system disorders, and damage to mucous membranes. All discharges from infected individuals are contagious, and patients require isolation and care with enhanced nutrition.",
+        ],
+        riskGroups: "Malnutritioned people, migrants to steppe provinces.",
+        showcaseSymptoms: ["Ichthyosis", "Dystrophy", "Lip lesions"],
         symptoms: [
             "Loss of coordination",
             "Red eyes",
@@ -466,6 +543,12 @@ const diagnoses = [
     },
     {
         name: "Steppe Dryness",
+        description: [
+            "A natural focal fungal infection. Infection occurs through inhaling fungal spores present on steppe grass or as mold.",
+            "The disease primarily develops in the lungs; patients complain of shortness of breath and rapid heartbeat. Irritation of mucous membranes is observed, manifested as throat pain and eye redness. In severe cases of intoxication, patients experience joint pain. Ichthyosis develops. The risk of fatality manifests if the case is advanced, when the patient can't move on their own.",
+        ],
+        riskGroups: "Inhabitants of the steppe.",
+        showcaseSymptoms: ["Sore throat", "Red eyes", "Ichthyosis"],
         symptoms: [
             "Red eyes",
             "Photophobia",
@@ -478,6 +561,12 @@ const diagnoses = [
     },
     {
         name: "Steppe Gastrodermal Fever",
+        description: [
+            "A viral disease caused by bites from the golden herb fly (Pluma herba aurea musca). A characteristic green rash appears around the bite area, and the disease progresses to affect the gastric mucosa, leading to vomiting and nausea. Some patients lose the ability to digest food normally and can only tolerate broths and liquid porridge. Symptoms also include extreme muscle weakness, exhaustion, and breathing difficulties. A fatal outcome is highly likely.",
+        ],
+        riskGroups:
+            "People spending extensive period of time in the steppe, especially inhabitants of the steppe, shepherds, reapers, herbalists.",
+        showcaseSymptoms: ["Rash", "Insect bites", "Dystrophy"],
         symptoms: [
             "Heartburn",
             "Geophagia",
@@ -492,10 +581,22 @@ const diagnoses = [
     },
     {
         name: "Stoneskin",
+        description: [
+            "A disease characterized by excessive skin cornification and densification. Infection occurs through skin contact with mycobacteria found in steppe flora.",
+            "The disease starts with skin dryness, peeling, and itching. Subsequently, the skin thickens, resembling large petrified reptile scales. Itching on such skin disappears. Nonfatal.",
+        ],
+        riskGroups: "Travelers, inhabitants of the steppe.",
+        showcaseSymptoms: ["Ichthyosis", "Red eyes"],
         symptoms: ["Photophobia", "Stone disease", "Slow pulse"],
     },
     {
         name: "Tularemia",
+        description: [
+            "An infectious disease transmitted through food, contact with rodents, and insect bites.",
+            "The onset is sudden, with fever, weakness, nausea, vomiting, diarrhea, and headache. Hallucinations are observed in some patients. Ulcers and/or redness then appear on the skin. It can also affect the eyes. Moderate mortality risk if left untreated. Immunity is permanent for recovered individuals. Not contagious from person to person.",
+        ],
+        riskGroups: "Impoverished people, inhabitants of the steppe.",
+        showcaseSymptoms: ["Ulcers", "Red eyes", "Skin redness"],
         symptoms: [
             "Hallucinations",
             "Headache",
@@ -509,6 +610,12 @@ const diagnoses = [
     },
     {
         name: "Twyrine Syndrome",
+        description: [
+            'Infection by microorganisms found in twyre sprouts and products derived from twyre. Or a consequence of abusing twyre-based alcohol products ("twyrine").',
+            'Patients experience muscle weakness, sweating, depressed mental state, migraines, and dizziness. Often accompanied by gastrointestinal symptoms. After 8-12 hours of exacerbation, hallucinations, photophobia, and seizures frequently manifest. Allergic reactions such as skin reddening/yellowing may occur. In more severe cases of intoxication, "twyrine" (epileptic) seizures occur. In extreme cases, it can lead to breathing difficulties, coma, and death.',
+        ],
+        riskGroups: "Alcoholics, inhabitants of the steppe.",
+        showcaseSymptoms: ["Yellowing of the skin", "Red eyes", "Vein damage"],
         symptoms: [
             "Hallucinations",
             "Headache",
@@ -527,9 +634,45 @@ const diagnoses = [
     },
 ].sort((left, right) => left.name.localeCompare(right.name));
 
+const symptomImageVariants = {
+    "Chest pain": ["sympt_chest_pain-1.png"],
+    Cough: ["sympt_cough-1.png"],
+    Cyanosis: ["sympt_cyanosis-1.png", "sympt_cyanosis-2.png"],
+    Dystrophy: ["sympt_dystrophy-1.png", "sympt_dystrophy-2.png"],
+    Eczema: ["sympt_eczema-1.png"],
+    "Darkened eye capillaries": ["sympt_eye_capillaries-1.png"],
+    Haemoptysis: ["sympt_haemoptysis-1.png"],
+    Headache: ["sympt_headache-1.png"],
+    Hematomas: ["sympt_hematomas-1.png"],
+    Ichthyosis: ["sympt_ichtyosis-1.png", "sympt_ichtyosis-2.png"],
+    "Insect bites": ["sympt_insect_bites-1.png"],
+    "Lip lesions": ["sympt_lip_lesions-1.png", "sympt_lip_lesions_2.png"],
+    "Loss of coordination": ["sympt_loss_coordination-1.png"],
+    "Redness around the nose": ["sympt_nose_redness-1.png"],
+    "Irregular pupil shape": ["sympt_pupil_shape-1.png"],
+    Rash: ["sympt_rash-1.png", "sympt_rash-2.png", "sympt_rash-3.png"],
+    "Red eyes": ["sympt_red_eyes-1.png"],
+    "Skin redness": ["sympt_skin_redness-1.png", "sympt_skin_redness-2.png"],
+    "Yellowing of the skin": ["sympt_skin_yellowing-1.png", "sympt_skin_yellowing-2.png"],
+    "Sore throat": ["sympt_sore_throat-1.png"],
+    "Stone disease": ["sympt_stone_disease-1.png"],
+    Ulcers: ["sympt_ulcers-1.png"],
+    "Vein damage": [
+        "sympt_vein_damage-1.png",
+        "sympt_vein_damage-2.png",
+        "sympt_vein_damage-3.png",
+    ],
+};
+
+const symptomGroupBySymptom = new Map(
+    symptomGroups.flatMap((group) => group.symptoms.map((symptom) => [symptom, group.id])),
+);
+
 const patients = createInitialPatients(INITIAL_PATIENT_COUNT);
+const gameSeed = createGameSeed(patients);
 
 const state = {
+    diagnosisDetailName: "",
     currentPatientId: patients[0].id,
     showAllPatients: false,
     patients: patients.map(initializePatientRecord),
@@ -556,6 +699,11 @@ const elements = {
     diagnosesPanelInner: document.querySelector(".diagnoses-panel-inner"),
     rightPage: document.querySelector(".right-page"),
     stamp: document.querySelector(".stamp"),
+    diagnosisDetailModal: document.getElementById("diagnosisDetailModal"),
+    diagnosisDetailCards: document.getElementById("diagnosisDetailCards"),
+    diagnosisDetailTitle: document.getElementById("diagnosisDetailTitle"),
+    diagnosisDetailGroups: document.getElementById("diagnosisDetailGroups"),
+    diagnosisDetailText: document.getElementById("diagnosisDetailText"),
 };
 
 const tooltipState = {
@@ -622,7 +770,8 @@ function positionFloatingSymptomTooltip(anchor) {
     const maxTop = Math.max(minTop, pageRect.height - tooltipRect.height - 8);
 
     const left = anchorRect.left - pageRect.left - tooltipRect.width - gap;
-    const centeredTop = anchorRect.top - pageRect.top + anchorRect.height / 2 - tooltipRect.height / 2;
+    const centeredTop =
+        anchorRect.top - pageRect.top + anchorRect.height / 2 - tooltipRect.height / 2;
     const top = Math.min(Math.max(centeredTop, minTop), maxTop);
 
     tooltip.style.left = `${left}px`;
@@ -703,7 +852,8 @@ function settlePatientStamp(patient) {
     if (!patient) return;
 
     if (patient.stampAnimation === "fade") {
-        patient.stampState = patient.stampNextState || (patient.selectedDiagnosis ? "preliminary" : "hidden");
+        patient.stampState =
+            patient.stampNextState || (patient.selectedDiagnosis ? "preliminary" : "hidden");
     }
 
     if (!patient.stampState) {
@@ -789,7 +939,7 @@ function renderStamp() {
         stampClasses.push("fade");
     }
 
-    elements.stamp.className = stampClasses.join(" " );
+    elements.stamp.className = stampClasses.join(" ");
 }
 
 function onStampAnimationEnd(event) {
@@ -805,7 +955,8 @@ function onStampAnimationEnd(event) {
     }
 
     if (event.animationName === "stamp-fade" && patient.stampAnimation === "fade") {
-        const nextState = patient.stampNextState || (patient.selectedDiagnosis ? "preliminary" : "hidden");
+        const nextState =
+            patient.stampNextState || (patient.selectedDiagnosis ? "preliminary" : "hidden");
         const nextAnimation = patient.stampNextAnimation || "";
 
         patient.stampState = nextState;
@@ -897,6 +1048,88 @@ function slugify(value) {
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-+|-+$/g, "");
+}
+
+function hashString(value) {
+    const text = String(value ?? "");
+    let hash = 2166136261;
+
+    for (let index = 0; index < text.length; index += 1) {
+        hash ^= text.charCodeAt(index);
+        hash = Math.imul(hash, 16777619);
+    }
+
+    return hash >>> 0 || 1;
+}
+
+function createSeededRandom(seedValue) {
+    let seed = seedValue >>> 0;
+
+    return () => {
+        seed += 0x6d2b79f5;
+        let next = Math.imul(seed ^ (seed >>> 15), seed | 1);
+        next ^= next + Math.imul(next ^ (next >>> 7), next | 61);
+        return ((next ^ (next >>> 14)) >>> 0) / 4294967296;
+    };
+}
+
+function createGameSeed(patientRecords = []) {
+    const base = patientRecords
+        .map((patient) =>
+            [
+                patient.id,
+                patient.name,
+                patient.age,
+                patient.photo,
+                patient.occupation,
+                patient.residence,
+            ].join("|"),
+        )
+        .join("::");
+
+    return hashString(base || "pathologic-3");
+}
+
+function pickSeededItem(values, seedKey) {
+    if (!Array.isArray(values) || !values.length) return "";
+
+    const rng = createSeededRandom(hashString(`${gameSeed}:${seedKey}`));
+    const index = Math.floor(rng() * values.length);
+    return values[index] || values[0];
+}
+
+function getDiagnosisShowcaseCards(diagnosis) {
+    if (!diagnosis) return [];
+
+    const showcaseSymptoms = diagnosis.showcaseSymptoms?.length
+        ? diagnosis.showcaseSymptoms
+        : diagnosis.symptoms.filter((symptom) => symptomImageVariants[symptom]).slice(0, 3);
+
+    return showcaseSymptoms
+        .map((symptom) => {
+            const variants = symptomImageVariants[symptom];
+            if (!variants?.length) return null;
+
+            const imageName = pickSeededItem(variants, `${diagnosis.name}:${symptom}`);
+            return {
+                symptom,
+                image: `assets/${imageName}`,
+            };
+        })
+        .filter(Boolean);
+}
+
+function getDiagnosisGroupIds(diagnosis) {
+    const groupIds = new Set();
+
+    (diagnosis?.symptoms || []).forEach((symptom) => {
+        const groupId = symptomGroupBySymptom.get(symptom);
+        if (groupId) {
+            groupIds.add(groupId);
+        }
+    });
+
+    return groupIds;
 }
 
 function createRandomPatientName() {
@@ -1148,13 +1381,16 @@ function renderDiagnoses() {
               <section class="diagnosis-entry ${isActiveDiagnosis ? "is-active" : ""}" data-diagnosis-name="${escapeAttribute(diagnosis.name)}">
                 <div class="diagnosis-name-row">
                   <h3 class="diagnosis-name">${escapeHtml(diagnosis.name)}</h3>
-                  <div
+                  <button
                     class="diagnosis-question-mark"
-                  ></div>
+                    type="button"
+                    aria-label="Open ${escapeAttribute(diagnosis.name)} details"
+                    data-diagnosis-name="${escapeAttribute(diagnosis.name)}"
+                  ></button>
                 </div>
                 <div class="diagnosis-symptoms">${symptoms}</div>
               </section>
-              ${isActiveDiagnosis && index === 0 ? '<div class="diagnosis-lock-slot"></div>' : ''}
+              ${isActiveDiagnosis && index === 0 ? '<div class="diagnosis-lock-slot"></div>' : ""}
             `;
         })
         .join("");
@@ -1177,6 +1413,94 @@ function renderDiagnoses() {
     }
 }
 
+function closeDiagnosisDetail() {
+    state.diagnosisDetailName = "";
+
+    if (!elements.diagnosisDetailModal) return;
+
+    elements.diagnosisDetailModal.hidden = true;
+    elements.diagnosisDetailModal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("diagnosis-detail-open");
+}
+
+function openDiagnosisDetail(diagnosisName) {
+    const diagnosis = getDiagnosisByName(diagnosisName);
+    if (!diagnosis || !elements.diagnosisDetailModal) return;
+
+    state.diagnosisDetailName = diagnosis.name;
+    renderDiagnosisDetail();
+
+    elements.diagnosisDetailModal.hidden = false;
+    elements.diagnosisDetailModal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("diagnosis-detail-open");
+}
+
+function renderDiagnosisDetail() {
+    if (!elements.diagnosisDetailModal) return;
+
+    const diagnosis = getDiagnosisByName(state.diagnosisDetailName);
+    if (!diagnosis) {
+        closeDiagnosisDetail();
+        return;
+    }
+
+    const cards = getDiagnosisShowcaseCards(diagnosis);
+    const activeGroupIds = getDiagnosisGroupIds(diagnosis);
+
+    if (elements.diagnosisDetailTitle) {
+        elements.diagnosisDetailTitle.textContent = diagnosis.name;
+    }
+
+    if (elements.diagnosisDetailCards) {
+        elements.diagnosisDetailCards.className = `diagnosis-detail-cards count-${cards.length}`;
+        elements.diagnosisDetailCards.innerHTML = cards
+            .map(
+                (card) => `
+                  <article class="diagnosis-detail-card">
+                    <img
+                      class="diagnosis-detail-card-image"
+                      src="${card.image}"
+                      alt="${escapeAttribute(card.symptom)}"
+                    />
+                    <span class="diagnosis-detail-card-caption">${escapeHtml(card.symptom)}</span>
+                  </article>
+                `,
+            )
+            .join("");
+    }
+
+    if (elements.diagnosisDetailGroups) {
+        elements.diagnosisDetailGroups.innerHTML = symptomGroups
+            .map(
+                (group) => `
+                  <div class="diagnosis-detail-group ${activeGroupIds.has(group.id) ? "is-active" : ""}">
+                    <img class="diagnosis-detail-group-icon" src="${group.icon}" alt="" aria-hidden="true" />
+                    <img
+                      class="diagnosis-detail-group-dot"
+                      src="assets/disease_icon.png"
+                      alt=""
+                    />
+                  </div>
+                `,
+            )
+            .join("");
+    }
+
+    if (elements.diagnosisDetailText) {
+        const description = (diagnosis.description || [])
+            .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
+            .join("");
+
+        const risk = diagnosis.riskGroups
+            ? `<p class="diagnosis-detail-risk">Risk groups: ${escapeHtml(
+                  diagnosis.riskGroups,
+              )}</p>`
+            : "";
+
+        elements.diagnosisDetailText.innerHTML = `${description}${risk}`;
+    }
+}
+
 function onSymptomToggle(event) {
     if (state.showAllPatients || !(event.target instanceof HTMLInputElement)) return;
 
@@ -1196,6 +1520,21 @@ function onSymptomToggle(event) {
 }
 
 function onDiagnosisClick(event) {
+    const detailTrigger = event.target.closest(".diagnosis-question-mark");
+    if (detailTrigger) {
+        const diagnosisName =
+            detailTrigger.dataset.diagnosisName ||
+            detailTrigger.closest(".diagnosis-entry")?.dataset.diagnosisName;
+
+        if (diagnosisName) {
+            event.preventDefault();
+            event.stopPropagation();
+            openDiagnosisDetail(diagnosisName);
+        }
+
+        return;
+    }
+
     if (state.showAllPatients) return;
 
     const diagnosisEntry = event.target.closest(".diagnosis-entry");
@@ -1207,7 +1546,8 @@ function onDiagnosisClick(event) {
     const currentPatient = getCurrentPatient();
     if (currentPatient?.diagnosisLocked) return;
 
-    const nextDiagnosisName = currentPatient.selectedDiagnosis === diagnosisName ? "" : diagnosisName;
+    const nextDiagnosisName =
+        currentPatient.selectedDiagnosis === diagnosisName ? "" : diagnosisName;
     if (!updatePatientDiagnosisSelection(currentPatient, nextDiagnosisName)) return;
 
     render();
@@ -1237,6 +1577,7 @@ function render() {
     renderSymptoms();
     renderDiagnoses();
     renderStamp();
+    renderDiagnosisDetail();
     updateActiveTabs();
 }
 
@@ -1266,6 +1607,20 @@ elements.symptomsScroll.addEventListener("scroll", () => {
 window.addEventListener("resize", () => {
     if (tooltipState.activeAnchor) {
         positionFloatingSymptomTooltip(tooltipState.activeAnchor);
+    }
+});
+
+if (elements.diagnosisDetailModal) {
+    elements.diagnosisDetailModal.addEventListener("click", (event) => {
+        if (event.target.closest("[data-close-diagnosis-detail]")) {
+            closeDiagnosisDetail();
+        }
+    });
+}
+
+window.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && state.diagnosisDetailName) {
+        closeDiagnosisDetail();
     }
 });
 

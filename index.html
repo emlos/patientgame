@@ -254,6 +254,26 @@
     </div>
   </div>
 
+  <div class="diagnosis-detail-modal" id="diagnosisDetailModal">
+    <div class="diagnosis-detail-backdrop" data-close-diagnosis-detail></div>
+    <div class="diagnosis-detail-dialog">
+      <div class="diagnosis-detail-layout">
+        <div class="diagnosis-detail-cards count-0" id="diagnosisDetailCards"></div>
+
+        <div class="diagnosis-detail-copy">
+          <button class="diagnosis-detail-close" type="button" data-close-diagnosis-detail>
+            ×
+          </button>
+
+          <h2 class="diagnosis-detail-title" id="diagnosisDetailTitle"></h2>
+          <div class="diagnosis-detail-groups" id="diagnosisDetailGroups"></div>
+          <div class="diagnosis-detail-text" id="diagnosisDetailText"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
   <script>
     preloadImagesWithLoading(imageFiles).then(() => {
       console.log("All preload attempts finished");

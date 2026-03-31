@@ -1,6 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Give+You+Glory&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Goudy+Bookletter+1911&display=swap");
-@import url('https://fonts.googleapis.com/css2?family=Special+Elite&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Special+Elite&display=swap");
 
 :root {
     --bg: #111;
@@ -449,7 +449,6 @@ body {
     letter-spacing: -0.02vw;
     line-height: 1.4;
     margin-bottom: 0.8vw;
-
 }
 
 .symptom-tooltip-body {
@@ -726,9 +725,12 @@ body {
 .diagnosis-question-mark {
     filter: brightness(1.3);
     height: 1.7vw;
-    background-image: url(assets/question_mark.png);
     aspect-ratio: 70/66;
-    background-size: contain;
+    border: 0;
+    padding: 0;
+    background: url(assets/question_mark.png) center / contain no-repeat;
+    cursor: pointer;
+    flex: 0 0 auto;
 }
 
 .diagnosis-entry.is-active .diagnosis-name,
@@ -866,6 +868,224 @@ body {
     line-height: 1;
 }
 
+body.diagnosis-detail-open {
+    cursor: default;
+}
+
+.diagnosis-detail-modal {
+    position: absolute;
+    z-index: 50;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+}
+
+.diagnosis-detail-modal[hidden] {
+    display: none;
+}
+
+.diagnosis-detail-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.726);
+}
+
+.diagnosis-detail-dialog {
+    aspect-ratio: 256/144;
+    position: relative;
+    width: 85vw;
+    background-image: url("assets/diagnose_background.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.diagnosis-detail-layout {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    aspect-ratio: 2000/1100;
+}
+
+.diagnosis-detail-cards {
+    position: relative;
+    width: 68%;
+}
+
+.diagnosis-detail-card {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+}
+
+.diagnosis-detail-card-image {
+    aspect-ratio: 1143/2048;
+    height: 25vw;
+    z-index: 1;
+}
+
+.diagnosis-detail-card-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    padding-bottom: 0.5vw;
+    display: block;
+    text-align: center;
+    font-family: var(--typewriter);
+    font-size: 1.2vw;
+    color: #231d18;
+    z-index: 2;
+}
+
+.diagnosis-detail-cards.count-1 .diagnosis-detail-card:nth-child(1) {
+    top: 8%;
+    left: 29%;
+    transform: rotate(5deg);
+}
+
+.diagnosis-detail-cards.count-1 .diagnosis-detail-card:nth-child(1) .diagnosis-detail-card-image {
+    height: 32vw;
+}
+
+.diagnosis-detail-cards.count-2 .diagnosis-detail-card:nth-child(1) {
+    top: 8%;
+    left: 17%;
+
+    transform: rotate(3deg);
+    & .diagnosis-detail-card-image {
+        height: 29vw;
+    }
+}
+
+.diagnosis-detail-cards.count-2 .diagnosis-detail-card:nth-child(2) {
+    top: 17%;
+    left: 55%;
+
+    transform: rotate(-3deg);
+
+    & .diagnosis-detail-card-image {
+        height: 29vw;
+    }
+}
+
+.diagnosis-detail-cards.count-3 .diagnosis-detail-card:nth-child(1) {
+    top: 6%;
+    left: 1%;
+
+    transform: rotate(20deg);
+}
+
+.diagnosis-detail-cards.count-3 .diagnosis-detail-card:nth-child(2) {
+    top: 27%;
+    left: 30%;
+
+    transform: rotate(8deg);
+}
+
+.diagnosis-detail-cards.count-3 .diagnosis-detail-card:nth-child(3) {
+    top: 9%;
+    left: 62%;
+
+    transform: rotate(-5deg);
+}
+
+.diagnosis-detail-copy {
+    width: 29%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    min-width: 0;
+    height: 100%;
+    color: #f3ebe0;
+}
+
+.diagnosis-detail-close {
+    position: absolute;
+    top: 1%;
+    right: 0.2vw;
+    border: 0;
+    background: transparent;
+    color: rgb(255, 246, 235);
+    font-family: var(--sans);
+    font-weight: 300;
+    font-size: 4vw;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 3;
+}
+
+.diagnosis-detail-title {
+    margin-left: 2.5vw;
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 2vw;
+
+    color: #fff9f1;
+    margin-top: 2vw;
+    margin-bottom: 4vw;
+
+    transform: scaleY(1.1);
+}
+
+.diagnosis-detail-groups {
+    display: flex;
+    justify-content: space-evenly;
+    gap: 0.7vw;
+    flex-wrap: wrap;
+}
+
+.diagnosis-detail-group {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.08vw;
+    width: 2.35vw;
+}
+
+.diagnosis-detail-group-icon {
+    width: 3.1vw;
+    aspect-ratio: 1;
+    filter: brightness(1000);
+}
+
+.diagnosis-detail-group-dot {
+    margin-top: -0.5vw;
+    aspect-ratio: 1;
+    width: 2vw;
+    height: auto;
+    opacity: 0;
+    filter: brightness(1.2);
+    margin-bottom: 0.5vw;
+}
+
+.diagnosis-detail-group.is-active .diagnosis-detail-group-dot {
+    opacity: 1;
+}
+
+.diagnosis-detail-text {
+    min-height: 0;
+    overflow-y: show;
+    font-family: var(--sans);
+    font-size: 1.05vw;
+    letter-spacing: -0.04vw;
+    line-height: 1.7;
+    color: #f3f5ea;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(231, 214, 190, 0.8) transparent;
+}
+
+.diagnosis-detail-text p {
+    margin-bottom: 1.5vw;
+}
 
 .diagnoses-scroll.is-locked .diagnosis-entry {
     pointer-events: none;
