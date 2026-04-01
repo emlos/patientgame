@@ -7,7 +7,7 @@ import {
     RANDOM_RESIDENCES,
 } from "./data.js";
 
-const DEFAULT_PATIENT_SEED = "pathologic-3";
+const DEFAULT_PATIENT_SEED = Date.now().toString();
 
 let patientRandom = createSeededRandom(hashString(`${DEFAULT_PATIENT_SEED}:patients`));
 let patientPhotoPool = [];
