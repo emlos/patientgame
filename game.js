@@ -1,4 +1,20 @@
-import {APPENDABLE_LINE_FIELDS, EXTRA_LINE_COUNT, INLINE_GAP_MIN, INLINE_GAP_MAX, INITIAL_PATIENT_COUNT, RANDOM_MARITAL_STATUSES, RANDOM_OCCUPATIONS, RANDOM_PATIENT_LAST_NAMES, RANDOM_PATIENT_NAMES, RANDOM_RESIDENCES, PHOTO_PATHS, diagnoses, symptomGroups, symptomImageVariants} from "./data.js";
+import {
+    APPENDABLE_LINE_FIELDS,
+    EXTRA_LINE_COUNT,
+    INLINE_GAP_MIN,
+    INLINE_GAP_MAX,
+    INITIAL_PATIENT_COUNT,
+    diagnoses,
+    symptomGroups,
+    symptomImageVariants,
+} from "./data.js";
+import {
+    createGameSeed,
+    createInitialPatients,
+    createRandomPatient,
+    createSeededRandom,
+    hashString,
+} from "./patient.js";
 
 const symptomGroupBySymptom = new Map(
     symptomGroups.flatMap((group) => group.symptoms.map((symptom) => [symptom, group.id])),
@@ -392,66 +408,6 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function getRandomItem(values) {
-    return values[getRandomInt(0, values.length - 1)];
-}
-
-function shuffle(values) {
-    const nextValues = [...values];
-    for (let index = nextValues.length - 1; index > 0; index -= 1) {
-        const swapIndex = getRandomInt(0, index);
-        [nextValues[index], nextValues[swapIndex]] = [nextValues[swapIndex], nextValues[index]];
-    }
-    return nextValues;
-}
-
-function slugify(value) {
-    return String(value)
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "");
-}
-
-function hashString(value) {
-    const text = String(value ?? "");
-    let hash = 2166136261;
-
-    for (let index = 0; index < text.length; index += 1) {
-        hash ^= text.charCodeAt(index);
-        hash = Math.imul(hash, 16777619);
-    }
-
-    return hash >>> 0 || 1;
-}
-
-function createSeededRandom(seedValue) {
-    let seed = seedValue >>> 0;
-
-    return () => {
-        seed += 0x6d2b79f5;
-        let next = Math.imul(seed ^ (seed >>> 15), seed | 1);
-        next ^= next + Math.imul(next ^ (next >>> 7), next | 61);
-        return ((next ^ (next >>> 14)) >>> 0) / 4294967296;
-    };
-}
-
-function createGameSeed(patientRecords = []) {
-    const base = patientRecords
-        .map((patient) =>
-            [
-                patient.id,
-                patient.name,
-                patient.age,
-                patient.photo,
-                patient.occupation,
-                patient.residence,
-            ].join("|"),
-        )
-        .join("::");
-
-    return hashString(base || "pathologic-3");
-}
-
 function pickSeededItem(values, seedKey) {
     if (!Array.isArray(values) || !values.length) return "";
 
@@ -492,66 +448,6 @@ function getDiagnosisGroupIds(diagnosis) {
     });
 
     return groupIds;
-}
-
-function pickRandomUnusedValue(values, usedValues = new Set()) {
-    const unusedValues = values.filter((value) => !usedValues.has(value));
-    return getRandomItem(unusedValues.length ? unusedValues : values);
-}
-
-function createRandomPatientName(existingPatients = []) {
-    const usedFirstNames = new Set(
-        existingPatients.map((patient) => String(patient.name || "").trim().split(/\s+/)[0]).filter(Boolean),
-    );
-    const firstName = pickRandomUnusedValue(RANDOM_PATIENT_NAMES, usedFirstNames);
-    const hasLastName = Math.random() < 0.35;
-    return hasLastName ? `${firstName} ${getRandomItem(RANDOM_PATIENT_LAST_NAMES)}` : firstName;
-}
-
-function createRandomPatient(existingPatients = [], existingIds = new Set(), photoPool = PHOTO_PATHS) {
-    const name = createRandomPatientName(existingPatients);
-    const usedOccupations = new Set(existingPatients.map((patient) => patient.occupation).filter(Boolean));
-    const usedResidences = new Set(existingPatients.map((patient) => patient.residence).filter(Boolean));
-    const usedMaritalStatuses = new Set(existingPatients.map((patient) => patient.maritalStatus).filter(Boolean));
-    const baseId = slugify(name) || `patient-${Date.now()}`;
-    let nextId = baseId;
-    let suffix = 2;
-
-    while (existingIds.has(nextId)) {
-        nextId = `${baseId}-${suffix}`;
-        suffix += 1;
-    }
-
-    return {
-        id: nextId,
-        tabLabel: name.split(" ")[0],
-        name,
-        age: getRandomInt(18, 46),
-        maritalStatus: pickRandomUnusedValue(RANDOM_MARITAL_STATUSES, usedMaritalStatuses),
-        occupation: pickRandomUnusedValue(RANDOM_OCCUPATIONS, usedOccupations),
-        admissionDay: 7,
-        admissionText: "7th day of the plague",
-        residence: pickRandomUnusedValue(RANDOM_RESIDENCES, usedResidences),
-        photo: photoPool.length ? photoPool.pop() : getRandomItem(PHOTO_PATHS),
-        harmfulHabits: "",
-        clinicalPicture: "",
-        diagnosis: "",
-        selectedSymptoms: [],
-    };
-}
-
-function createInitialPatients(count) {
-    const existingIds = new Set();
-    const photoPool = shuffle(PHOTO_PATHS);
-    const patients = [];
-
-    for (let index = 0; index < count; index += 1) {
-        const patient = createRandomPatient(patients, existingIds, photoPool);
-        existingIds.add(patient.id);
-        patients.push(patient);
-    }
-
-    return patients;
 }
 
 function appendEntryToRandomLine(lines, entry) {
@@ -1096,6 +992,4 @@ window.medicalChartApp = {
     },
 };
 
-//TODO: move patient generating logic to file
-//TODO: move string lists (names, occupations, etc.) to file
 //TODO: ability to create patients (+UI interface)
