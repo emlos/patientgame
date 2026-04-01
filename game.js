@@ -14,6 +14,7 @@ import {
     createRandomPatient,
     createSeededRandom,
     hashString,
+    getRandomInt,
 } from "./patient.js";
 
 const symptomGroupBySymptom = new Map(
@@ -126,8 +127,9 @@ function positionFloatingSymptomTooltip(anchor) {
         anchorRect.top - pageRect.top + anchorRect.height / 2 - tooltipRect.height / 2;
     const top = Math.min(Math.max(centeredTop, minTop), maxTop);
 
-    tooltip.style.left = `${left * 0.0775}vw`;
-    tooltip.style.top = `${top * 0.075}vw`;
+    //TODO: transform into vw units to match rest of style.css
+    tooltip.style.left = `${left}px`;
+    tooltip.style.top = `${top}px`;
     tooltip.style.visibility = "visible";
 
     tooltipState.activeAnchor = anchor;
@@ -402,10 +404,6 @@ function fillInitialLineState(value) {
             lines[index] = entry;
         });
     return lines;
-}
-
-function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 function pickSeededItem(values, seedKey) {
@@ -853,12 +851,12 @@ function updateActiveTabs() {
     elements.allPatientsTab.classList.toggle("active", state.showAllPatients);
 }
 
-function render() {
+function render(init = False) {
     renderLeftPage();
     renderSymptoms();
     renderDiagnoses();
     renderStamp();
-    renderDiagnosisDetail();
+    if (state.diagnosisDetailName || init) renderDiagnosisDetail();
     updateActiveTabs();
 }
 
@@ -906,7 +904,7 @@ window.addEventListener("keydown", (event) => {
 });
 
 buildTabs();
-render();
+render(true);
 
 window.medicalChartApp = {
     getPatients() {

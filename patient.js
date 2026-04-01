@@ -14,20 +14,19 @@ import {
     DEFAULT_PATIENT_SEED,
     DIAGNOSES_BY_NAME,
     DIAGNOSIS_TAG_HINTS,
-    TAG_SYMPTOM_RULES, canonicalizeSymptom
+    TAG_SYMPTOM_RULES,
+    canonicalizeSymptom,
 } from "./data.js";
 
 let patientRandom = createSeededRandom(hashString(`${DEFAULT_PATIENT_SEED}:patients`));
 let patientPhotoPool = [];
-
-
 
 function resetPatientGenerator(seedValue = DEFAULT_PATIENT_SEED) {
     patientRandom = createSeededRandom(hashString(`${seedValue}:patients`));
     patientPhotoPool = shuffle(PHOTO_PATHS, patientRandom);
 }
 
-function getRandomInt(min, max, rng = patientRandom) {
+ export function getRandomInt(min, max, rng = patientRandom) {
     return Math.floor(rng() * (max - min + 1)) + min;
 }
 
@@ -182,15 +181,14 @@ function sampleWithoutReplacement(entries, count, rng = patientRandom) {
 }
 
 function pickSomeCount(probabilities, rng = patientRandom) {
-    const roll = rng();
-    let cursor = 0;
-
+    const total = probabilities.reduce((s, [, p]) => s + p, 0);
+    let cursor = 0,
+        roll = rng() * total;
     for (const [count, chance] of probabilities) {
         cursor += chance;
         if (roll <= cursor) return count;
     }
-
-    return probabilities[probabilities.length - 1]?.[0] || 0;
+    return probabilities.at(-1)?.[0] ?? 0;
 }
 
 function inflectFemaleLastName(lastName) {
