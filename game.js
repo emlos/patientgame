@@ -5,6 +5,7 @@ const INLINE_GAP_MAX = 6;
 
 const INITIAL_PATIENT_COUNT = 3;
 
+//TODO: no reuse of names, occupations, residences, marital statuses among patients
 const RANDOM_PATIENT_NAMES = [
     "Anna",
     "Altyn",
@@ -64,6 +65,7 @@ const RANDOM_PATIENT_LAST_NAMES = [
     "Yunatov",
 ];
 
+//TODO: single 50% of the time, married 20%, widowed 10%, betrothed 10%, divorced 5%
 const RANDOM_MARITAL_STATUSES = ["single", "married", "widowed", "betrothed", "divorced"];
 
 const RANDOM_OCCUPATIONS = [
@@ -140,13 +142,19 @@ const RANDOM_RESIDENCES = [
     "Atrium",
     "Bridge Square",
     "Shekhen steppe village",
-    " ", //empty on purpose
+    "does not remember",
+    "no premament residence",
+    "unclear (?)",
+    "sleeps on the streets",
 ];
 
 const PHOTO_PATHS = Array.from({ length: 24 }, (_, index) => {
     return `assets/patient_${String(index + 1).padStart(2, "0")}.png`;
 });
 
+//TODO: list of harmul habits and clinical picture elements to randomly add to patients
+
+//TODO: add toottips to symptoms
 const symptomGroups = [
     {
         id: "central-nervous-system",
@@ -587,7 +595,15 @@ const diagnoses = [
         ],
         riskGroups: "Travelers, inhabitants of the steppe.",
         showcaseSymptoms: ["Ichthyosis", "Red eyes"],
-        symptoms: ["Photophobia", "Stone disease", "Slow pulse"],
+        symptoms: [
+            "Red eyes",
+            "Visual Impairment",
+            "Photophobia",
+            "Hearing Impairment",
+            "Stone disease",
+            "Itchy skin",
+            "Slow pulse",
+        ],
     },
     {
         name: "Tularemia",
@@ -684,7 +700,7 @@ const diagnoses = [
         ],
         riskGroups:
             "Children in crowded households, impoverished rural families, and people sharing bedding or clothing.",
-        showcaseSymptoms: ["Ichthyosis", "Eczema", "Skin redness"],
+        showcaseSymptoms: ["Ichthyosis", "Skin redness"],
         symptoms: ["Itchy skin", "Ichthyosis", "Eczema", "Skin redness", "Dystrophy", "Weakness"],
         custom: true,
     },
@@ -875,8 +891,8 @@ function positionFloatingSymptomTooltip(anchor) {
         anchorRect.top - pageRect.top + anchorRect.height / 2 - tooltipRect.height / 2;
     const top = Math.min(Math.max(centeredTop, minTop), maxTop);
 
-    tooltip.style.left = `${left}px`;
-    tooltip.style.top = `${top}px`;
+    tooltip.style.left = `${left * 0.0775}vw`;
+    tooltip.style.top = `${top * 0.075}vw`;
     tooltip.style.visibility = "visible";
 
     tooltipState.activeAnchor = anchor;
@@ -1072,16 +1088,42 @@ function getAlphabeticalDiagnoses() {
     return [...diagnoses].sort((left, right) => left.name.localeCompare(right.name));
 }
 
-function getOrderedDiagnoses(selectedDiagnosisName = "") {
-    const alphabeticalDiagnoses = getAlphabeticalDiagnoses();
-    if (!selectedDiagnosisName) return alphabeticalDiagnoses;
+function getDiagnosisMatchCount(diagnosis, selectedSymptoms = new Set()) {
+    if (!diagnosis || !selectedSymptoms?.size) return 0;
+
+    return diagnosis.symptoms.reduce((count, symptom) => {
+        return count + (selectedSymptoms.has(symptom) ? 1 : 0);
+    }, 0);
+}
+
+function getSymptomSortedDiagnoses(selectedSymptoms = new Set()) {
+    if (!selectedSymptoms?.size) {
+        return getAlphabeticalDiagnoses();
+    }
+
+    return [...diagnoses].sort((left, right) => {
+        const matchDifference =
+            getDiagnosisMatchCount(right, selectedSymptoms) -
+            getDiagnosisMatchCount(left, selectedSymptoms);
+
+        if (matchDifference !== 0) {
+            return matchDifference;
+        }
+
+        return left.name.localeCompare(right.name);
+    });
+}
+
+function getOrderedDiagnoses(selectedSymptoms = new Set(), selectedDiagnosisName = "") {
+    const symptomSortedDiagnoses = getSymptomSortedDiagnoses(selectedSymptoms);
+    if (!selectedDiagnosisName) return symptomSortedDiagnoses;
 
     const selectedDiagnosis = getDiagnosisByName(selectedDiagnosisName);
-    if (!selectedDiagnosis) return alphabeticalDiagnoses;
+    if (!selectedDiagnosis) return symptomSortedDiagnoses;
 
     return [
         selectedDiagnosis,
-        ...alphabeticalDiagnoses.filter((diagnosis) => diagnosis.name !== selectedDiagnosisName),
+        ...symptomSortedDiagnoses.filter((diagnosis) => diagnosis.name !== selectedDiagnosisName),
     ];
 }
 
@@ -1419,11 +1461,10 @@ function renderSymptoms() {
             <div
               class="symptom-icon-wrap"
               tabindex="0"
-              aria-label="${escapeAttribute(group.title)} information"
               data-tooltip-title="${escapeAttribute(group.title)}"
               data-tooltip-body="${escapeAttribute(group.tooltip || "")}"
             >
-              <img src="${group.icon}" alt="" aria-hidden="true" />
+              <img src="${group.icon}" alt=""/>
             </div>
             <div class="symptom-content">
               <div class="symptom-heading">${group.title}</div>
@@ -1469,7 +1510,10 @@ function renderDiagnoses() {
     const selectedDiagnosisName = state.showAllPatients ? "" : patient.selectedDiagnosis || "";
     const isDiagnosisLocked = !state.showAllPatients && !!patient?.diagnosisLocked;
 
-    elements.diagnosesScroll.innerHTML = getOrderedDiagnoses(selectedDiagnosisName)
+    elements.diagnosesScroll.innerHTML = getOrderedDiagnoses(
+        manuallySelectedSet,
+        selectedDiagnosisName,
+    )
         .map((diagnosis, index) => {
             const isActiveDiagnosis = diagnosis.name === selectedDiagnosisName;
             const symptoms = diagnosis.symptoms
@@ -1477,15 +1521,24 @@ function renderDiagnoses() {
                     createDiagnosisSymptomItem(symptom, manuallySelectedSet.has(symptom)),
                 )
                 .join('<span class="diagnosis-symptom-divider">|</span>');
+            const customPip = diagnosis.custom
+                ? `
+                    <img
+                      class="diagnosis-custom-pip"
+                      src="assets/disease_icon.png"
+                      alt="Custom diagnosis"
+                    />
+                  `
+                : "";
 
             return `
               <section class="diagnosis-entry ${isActiveDiagnosis ? "is-active" : ""}" data-diagnosis-name="${escapeAttribute(diagnosis.name)}">
                 <div class="diagnosis-name-row">
                   <h3 class="diagnosis-name">${escapeHtml(diagnosis.name)}</h3>
+                  ${customPip}
                   <button
                     class="diagnosis-question-mark"
                     type="button"
-                    aria-label="Open ${escapeAttribute(diagnosis.name)} details"
                     data-diagnosis-name="${escapeAttribute(diagnosis.name)}"
                   ></button>
                 </div>
@@ -1520,7 +1573,6 @@ function closeDiagnosisDetail() {
     if (!elements.diagnosisDetailModal) return;
 
     elements.diagnosisDetailModal.hidden = true;
-    elements.diagnosisDetailModal.setAttribute("aria-hidden", "true");
     document.body.classList.remove("diagnosis-detail-open");
 }
 
@@ -1532,7 +1584,6 @@ function openDiagnosisDetail(diagnosisName) {
     renderDiagnosisDetail();
 
     elements.diagnosisDetailModal.hidden = false;
-    elements.diagnosisDetailModal.setAttribute("aria-hidden", "false");
     document.body.classList.add("diagnosis-detail-open");
 }
 
@@ -1575,7 +1626,7 @@ function renderDiagnosisDetail() {
             .map(
                 (group) => `
                   <div class="diagnosis-detail-group ${activeGroupIds.has(group.id) ? "is-active" : ""}">
-                    <img class="diagnosis-detail-group-icon" src="${group.icon}" alt="" aria-hidden="true" />
+                    <img class="diagnosis-detail-group-icon" src="${group.icon}" alt="" />
                     <img
                       class="diagnosis-detail-group-dot"
                       src="assets/disease_icon.png"
@@ -1811,3 +1862,7 @@ window.medicalChartApp = {
         return true;
     },
 };
+
+//TODO: move patient generating logic to file
+//TODO: move string lists (names, occupations, etc.) to file
+//TODO: ability to create patients (+UI interface)

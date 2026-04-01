@@ -711,6 +711,7 @@ body {
 .diagnosis-name-row {
     display: inline-flex;
     align-items: center;
+    gap: 0.35vw;
     margin-bottom: 0.35vw;
 }
 
@@ -720,6 +721,14 @@ body {
     line-height: 1.2;
     color: #ccc1b2;
     transition: color 180ms ease;
+}
+
+.diagnosis-custom-pip {
+    width: 0.9vw;
+    height: 0.9vw;
+    flex: 0 0 auto;
+    object-fit: contain;
+    transform: translateY(0.02vw);
 }
 
 .diagnosis-question-mark {
