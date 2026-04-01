@@ -632,7 +632,108 @@ const diagnoses = [
             "Weakness",
         ],
     },
-].sort((left, right) => left.name.localeCompare(right.name));
+    {
+        name: "Cholera",
+        description: [
+            "An acute intestinal infection caused by contaminated water or food. Outbreaks flourish where wells, rivers, and storage vessels are fouled by human waste.",
+            "The disease begins suddenly with violent diarrhea and repeated vomiting. The patient rapidly loses strength and bodily fluids; the pulse quickens, the face sharpens, and the extremities may turn blue from collapse. Without rehydration, death can follow within hours.",
+        ],
+        riskGroups:
+            "People drinking unsafe water, riverbank dwellers, refugees, prisoners, and inhabitants of overcrowded rural settlements.",
+        showcaseSymptoms: ["Cyanosis", "Headache"],
+        symptoms: [
+            "Headache",
+            "Cyanosis",
+            "Rapid pulse",
+            "Weakness",
+            "Severe pallor",
+            "Diarrhea",
+            "Loss of appetite",
+            "Nausea and vomiting",
+        ],
+        custom: true,
+    },
+    {
+        name: "Typhus",
+        description: [
+            "A severe infectious disease spread by body lice. It appears where people are crowded together, seldom washed, and forced to share bedding and clothing.",
+            "The illness starts with fever, profound weakness, and splitting headache. Soon the patient develops red, inflamed eyes, becomes unsteady and confused, and a rash spreads across the skin. In grave cases delirium and collapse follow.",
+        ],
+        riskGroups:
+            "People living in crowded, impoverished, or war-disrupted conditions; vagrants, prisoners, laborers, and refugees.",
+        showcaseSymptoms: ["Rash", "Skin redness", "Red eyes"],
+        symptoms: [
+            "Headache",
+            "Hallucinations",
+            "Memory lapses",
+            "Loss of coordination",
+            "Red eyes",
+            "Photophobia",
+            "Rash",
+            "Skin redness",
+            "Weakness",
+            "Fever",
+        ],
+        custom: true,
+    },
+    {
+        name: "Favus",
+        description: [
+            "A chronic fungal disease of the skin, most often affecting the scalp. It spreads through prolonged close contact, shared bedding, hats, combs, and poor hygiene.",
+            "At first the patient complains of itching and irritated skin. With time, crusted lesions and dry scaling develop, the skin becomes inflamed, and neglected cases lead to wasting and weakness. The disease lingers for months or years if untreated.",
+        ],
+        riskGroups:
+            "Children in crowded households, impoverished rural families, and people sharing bedding or clothing.",
+        showcaseSymptoms: ["Ichthyosis", "Eczema", "Skin redness"],
+        symptoms: ["Itchy skin", "Ichthyosis", "Eczema", "Skin redness", "Dystrophy", "Weakness"],
+        custom: true,
+    },
+    {
+        name: "Pellagra",
+        description: [
+            "A wasting disease caused by prolonged poor diet, especially one dependent on badly prepared maize and lacking meat, milk, or legumes. It is not contagious, but flourishes where poverty dictates the table.",
+            "The patient first grows weak and thin, then develops diarrhea and a red, rough rash on exposed skin. In advanced stages the mind is affected: memory falters, coordination worsens, and some patients become delirious or hallucinate.",
+        ],
+        riskGroups:
+            "Poor peasants, widowed or neglected villagers, alcoholics, and people surviving on monotonous grain diets.",
+        showcaseSymptoms: ["Skin redness", "Rash", "Dystrophy"],
+        symptoms: [
+            "Memory lapses",
+            "Hallucinations",
+            "Loss of coordination",
+            "Weakness",
+            "Skin redness",
+            "Rash",
+            "Dystrophy",
+            "Diarrhea",
+        ],
+        custom: true,
+    },
+    {
+        name: "Ergotism",
+        description: [
+            "A poisoning caused by eating rye or other grain infested with ergot fungus. It appears after bad harvest years, damp storage, or prolonged reliance on spoiled bread.",
+            "Some patients suffer the convulsive form, with headache, vomiting, loss of coordination, and terrifying visions. Others develop a gangrenous form: the blood supply to the limbs fails, the flesh darkens, pain becomes unbearable, and ulcers may appear. Severe cases end in madness, maiming, or death.",
+        ],
+        riskGroups:
+            "Peasants and laborers dependent on stored rye, especially in poor harvest years.",
+        showcaseSymptoms: ["Vein damage", "Cyanosis", "Ulcers"],
+        symptoms: [
+            "Headache",
+            "Hallucinations",
+            "Memory lapses",
+            "Loss of coordination",
+            "Nausea and vomiting",
+            "Weakness",
+            "Cyanosis",
+            "Vein damage",
+            "Ulcers",
+        ],
+        custom: true,
+    },
+].sort((left, right) => {
+    return left.name.localeCompare(right.name);
+});
 
 const symptomImageVariants = {
     "Chest pain": ["sympt_chest_pain-1.png"],
