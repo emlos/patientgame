@@ -5,7 +5,6 @@ const INLINE_GAP_MAX = 6;
 
 const INITIAL_PATIENT_COUNT = 3;
 
-//TODO: no reuse of names, occupations, residences, marital statuses among patients
 const RANDOM_PATIENT_NAMES = [
     "Anna",
     "Altyn",
@@ -1275,14 +1274,25 @@ function getDiagnosisGroupIds(diagnosis) {
     return groupIds;
 }
 
-function createRandomPatientName() {
-    const firstName = getRandomItem(RANDOM_PATIENT_NAMES);
+function pickRandomUnusedValue(values, usedValues = new Set()) {
+    const unusedValues = values.filter((value) => !usedValues.has(value));
+    return getRandomItem(unusedValues.length ? unusedValues : values);
+}
+
+function createRandomPatientName(existingPatients = []) {
+    const usedFirstNames = new Set(
+        existingPatients.map((patient) => String(patient.name || "").trim().split(/\s+/)[0]).filter(Boolean),
+    );
+    const firstName = pickRandomUnusedValue(RANDOM_PATIENT_NAMES, usedFirstNames);
     const hasLastName = Math.random() < 0.35;
     return hasLastName ? `${firstName} ${getRandomItem(RANDOM_PATIENT_LAST_NAMES)}` : firstName;
 }
 
-function createRandomPatient(existingIds = new Set(), photoPool = PHOTO_PATHS) {
-    const name = createRandomPatientName();
+function createRandomPatient(existingPatients = [], existingIds = new Set(), photoPool = PHOTO_PATHS) {
+    const name = createRandomPatientName(existingPatients);
+    const usedOccupations = new Set(existingPatients.map((patient) => patient.occupation).filter(Boolean));
+    const usedResidences = new Set(existingPatients.map((patient) => patient.residence).filter(Boolean));
+    const usedMaritalStatuses = new Set(existingPatients.map((patient) => patient.maritalStatus).filter(Boolean));
     const baseId = slugify(name) || `patient-${Date.now()}`;
     let nextId = baseId;
     let suffix = 2;
@@ -1297,11 +1307,11 @@ function createRandomPatient(existingIds = new Set(), photoPool = PHOTO_PATHS) {
         tabLabel: name.split(" ")[0],
         name,
         age: getRandomInt(18, 46),
-        maritalStatus: getRandomItem(RANDOM_MARITAL_STATUSES),
-        occupation: getRandomItem(RANDOM_OCCUPATIONS),
+        maritalStatus: pickRandomUnusedValue(RANDOM_MARITAL_STATUSES, usedMaritalStatuses),
+        occupation: pickRandomUnusedValue(RANDOM_OCCUPATIONS, usedOccupations),
         admissionDay: 7,
         admissionText: "7th day of the plague",
-        residence: getRandomItem(RANDOM_RESIDENCES),
+        residence: pickRandomUnusedValue(RANDOM_RESIDENCES, usedResidences),
         photo: photoPool.length ? photoPool.pop() : getRandomItem(PHOTO_PATHS),
         harmfulHabits: "",
         clinicalPicture: "",
@@ -1313,12 +1323,15 @@ function createRandomPatient(existingIds = new Set(), photoPool = PHOTO_PATHS) {
 function createInitialPatients(count) {
     const existingIds = new Set();
     const photoPool = shuffle(PHOTO_PATHS);
+    const patients = [];
 
-    return Array.from({ length: count }, () => {
-        const patient = createRandomPatient(existingIds, photoPool);
+    for (let index = 0; index < count; index += 1) {
+        const patient = createRandomPatient(patients, existingIds, photoPool);
         existingIds.add(patient.id);
-        return patient;
-    });
+        patients.push(patient);
+    }
+
+    return patients;
 }
 
 function appendEntryToRandomLine(lines, entry) {
@@ -1838,7 +1851,7 @@ window.medicalChartApp = {
     },
     addRandomPatient() {
         const existingIds = new Set(state.patients.map((patient) => patient.id));
-        const patient = initializePatientRecord(createRandomPatient(existingIds));
+        const patient = initializePatientRecord(createRandomPatient(state.patients, existingIds));
         state.patients.push(patient);
         state.currentPatientId = patient.id;
         state.showAllPatients = false;
