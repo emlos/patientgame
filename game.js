@@ -368,7 +368,7 @@ function setTextWithFallback(element, value, fallback = "") {
 
 function normalizeFieldEntries(value) {
     if (Array.isArray(value)) {
-        return value.map((entry) => String(entry).trim()).filter(Boolean);
+        return value;
     }
 
     if (value === null || value === undefined) {
@@ -494,8 +494,7 @@ function initializePatientRecord(patient) {
         stampNextAnimation: "",
         ...patient,
     };
-
-    record.harmfulHabitsLines = fillInitialLineState(record.harmfulHabits);
+    record.harmfulHabitsLines = fillInitialLineState(record.harmfulHabits); //TODO: habits/clinicalpicture appear on random lines, with random amount of space before and after for organic look
     record.clinicalPictureLines = fillInitialLineState(record.clinicalPicture);
     record.diagnosis = normalizeFieldEntries(record.diagnosis).join(" ");
 
@@ -534,10 +533,11 @@ function renderLeftPage() {
     setTextWithFallback(elements.fieldOccupation, active.occupation);
     setTextWithFallback(elements.fieldAdmission, active.admissionText);
     setTextWithFallback(elements.fieldResidence, active.residence);
+
     renderLineGroup(
         elements.fieldHarmfulHabits,
         elements.harmfulHabitsLines,
-        active.harmfulHabitsLines,
+        active.harmfulHabitsLines.map((line) => line.label),
     );
     renderLineGroup(
         elements.fieldClinicalPicture,
@@ -912,6 +912,7 @@ window.medicalChartApp = {
     getPatients() {
         return structuredClone(state.patients);
     },
+
     setPatientField(patientId, field, value) {
         const patient = state.patients.find((entry) => entry.id === patientId);
         if (!patient || !(field in patient)) return false;
@@ -937,6 +938,7 @@ window.medicalChartApp = {
         render();
         return true;
     },
+
     setPatientSymptoms(patientId, symptoms) {
         const patient = state.patients.find((entry) => entry.id === patientId);
         if (!patient || !Array.isArray(symptoms)) return false;
@@ -944,6 +946,7 @@ window.medicalChartApp = {
         render();
         return true;
     },
+
     selectDiagnosis(patientId, diagnosisName) {
         const patient = state.patients.find((entry) => entry.id === patientId);
         if (!patient) return false;
@@ -952,12 +955,14 @@ window.medicalChartApp = {
         render();
         return true;
     },
+
     lockDiagnosis(patientId) {
         const patient = state.patients.find((entry) => entry.id === patientId);
         if (!lockPatientDiagnosis(patient)) return false;
         render();
         return true;
     },
+
     addPatient(patient) {
         if (!patient?.id) return false;
         state.patients.push(initializePatientRecord(patient));
@@ -965,9 +970,11 @@ window.medicalChartApp = {
         render();
         return true;
     },
+
     addRandomPatient() {
         const existingIds = new Set(state.patients.map((patient) => patient.id));
         const patient = initializePatientRecord(createRandomPatient(state.patients, existingIds));
+
         state.patients.push(patient);
         state.currentPatientId = patient.id;
         state.showAllPatients = false;
@@ -975,6 +982,7 @@ window.medicalChartApp = {
         render();
         return structuredClone(patient);
     },
+
     selectPatient(patientId) {
         settlePatientStamp(getCurrentPatient());
 
@@ -983,6 +991,7 @@ window.medicalChartApp = {
             render();
             return true;
         }
+
         const exists = state.patients.some((patient) => patient.id === patientId);
         if (!exists) return false;
         state.currentPatientId = patientId;

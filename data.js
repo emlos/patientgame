@@ -5,160 +5,6 @@ export const INLINE_GAP_MAX = 6;
 
 export const INITIAL_PATIENT_COUNT = 3;
 
-export const RANDOM_PATIENT_NAMES = [
-    "Anna",
-    "Altyn",
-    "Toya",
-    "Khulan",
-    "Lun",
-    "Burduk",
-    "Tolkowy",
-    "Oktai",
-    "Laska",
-    "Mariya",
-    "Mishka",
-    "Nara",
-    "Nika",
-    "Bobok",
-    "Pavel",
-    "Shchur",
-    "Lyuta",
-    "Fila",
-    "Vera",
-    "Yargi",
-    "Olusha",
-    "Zhytochnik",
-    "Yunat",
-    "Emilia",
-    "Sotnik",
-    "Tuutei",
-    "Voronok",
-    "Astrild",
-    "Chernyak",
-    "Myrosya",
-    "Petrel",
-    "Khariton",
-    "Aristarkh",
-    "Sakh Men",
-    "Poshinok",
-    "Kira",
-    "Marfa",
-    "Lyudmila",
-    "Yegor",
-    "Makar",
-    "Dmitry",
-    "Semyon",
-    "Konstantin",
-    "Sergey",
-    "Ilya",
-];
-
-export const RANDOM_PATIENT_LAST_NAMES = [
-    "Ankudinov",
-    "Baskakov",
-    "Gantimurova",
-    "Goncharova",
-    "Grishin",
-    "Kabanov",
-    "Karmin",
-    "Kharitonov",
-    "Kudrin",
-    "Mishchenko",
-    "Naraeva",
-    "Sablin",
-    "Sotnik",
-    "Yunatov",
-];
-
-//TODO: single 50% of the time, married 20%, widowed 10%, betrothed 10%, divorced 5%
-export const RANDOM_MARITAL_STATUSES = ["single", "married", "widowed", "betrothed", "divorced"];
-
-export const RANDOM_OCCUPATIONS = [
-    "abbatoir clerk",
-    "apothecary assistant",
-    "bakery hand",
-    "bookkeeper",
-    "carter",
-    "chimney sweep",
-    "dock porter",
-    "dressmaker",
-    "factory stoker",
-    "ferryman",
-    "gravedigger's assistant",
-    "laundress",
-    "night watchman",
-    "rail yard mechanic",
-    "schoolteacher",
-    "seamstress",
-    "soap boiler",
-    "station clerk",
-    "tallow renderer",
-    "tannery worker",
-    "town orderly",
-    "warehouse tallyman",
-    "aspiring herb bride",
-    "works for Stamatin",
-    "dancer",
-    "drunk",
-    "shopkeeper",
-    "dyer",
-    "street sweeper",
-    "cutpurse thug",
-    "Termitary guard",
-    "vagrant",
-    "apprentice herbalist",
-    "apprentice midwife",
-    "manual laborer",
-    "bandit",
-    "wannabe scientist",
-    "wannabe artist",
-    "'artist'",
-    "studies botany",
-    "studies anatomy",
-    "studies medicine",
-    "shop-floor worker",
-    "charlatan healer",
-    "dealer",
-    "housewife",
-    "does not remember",
-    "unclear (?)",
-    "academy student",
-    "herb bride",
-    "accountant",
-    "solider",
-    "teacher",
-    "keeps bees",
-];
-
-export const RANDOM_RESIDENCES = [
-    "Tanners",
-    "Skinners",
-    "Hindquarters",
-    "Factory",
-    "The Crude Sprawl",
-    "Flank",
-    "Chine",
-    "Backbone",
-    "Marrow",
-    "Gut",
-    "Maw",
-    "Spleen",
-    "Warehouses",
-    "Atrium",
-    "Bridge Square",
-    "Shekhen steppe village",
-    "does not remember",
-    "no premament residence",
-    "unclear (?)",
-    "sleeps on the streets",
-];
-
-export const PHOTO_PATHS = Array.from({ length: 24 }, (_, index) => {
-    return `assets/patient_${String(index + 1).padStart(2, "0")}.png`;
-});
-
-//TODO: list of harmul habits and clinical picture elements to randomly add to patients
-
 //TODO: add toottips to symptoms
 export const symptomGroups = [
     {
@@ -756,6 +602,712 @@ export const diagnoses = [
     return left.name.localeCompare(right.name);
 });
 
+export const PATIENT_GENDERS = Object.freeze({
+    FEMALE: "female",
+    MALE: "male",
+});
+
+export const PATIENT_PROFILE_TAGS = Object.freeze({
+    ALCOHOL_USE: "alcohol_use",
+    ALLERGEN_EXPOSURE: "allergen_exposure",
+    ANIMAL_EXPOSURE: "animal_exposure",
+    BLOOD_EXPOSURE: "blood_exposure",
+    BRAWLER: "brawler",
+    CHEMICAL_EXPOSURE: "chemical_exposure",
+    COLD_EXPOSURE: "cold_exposure",
+    CROWD_EXPOSURE: "crowd_exposure",
+    DUST_EXPOSURE: "dust_exposure",
+    EYE_STRAIN: "eye_strain",
+    HEAD_INJURY: "head_injury",
+    HEARING_WEAR: "hearing_wear",
+    HEAT_EXPOSURE: "heat_exposure",
+    HEAVY_LABOR: "heavy_labor",
+    HEAVY_MACHINERY: "heavy_machinery",
+    HOME_SMOKE: "home_smoke",
+    HORMONAL_FLARES: "hormonal_flares",
+    INSECT_EXPOSURE: "insect_exposure",
+    MALNOURISHED: "malnourished",
+    MEMORY_ISSUES: "memory_issues",
+    MIGRAINES: "migraines",
+    NIGHT_WORK: "night_work",
+    POOR_HYGIENE: "poor_hygiene",
+    PREGNANCY: "pregnancy",
+    RODENT_EXPOSURE: "rodent_exposure",
+    SEWAGE_EXPOSURE: "sewage_exposure",
+    SMOKER: "smoker",
+    SOIL_EXPOSURE: "soil_exposure",
+    STEPPE_EXPOSURE: "steppe_exposure",
+    STREET_LIFE: "street_life",
+    WATER_EXPOSURE: "water_exposure",
+    WEAK_CONSTITUTION: "weak_constitution",
+    WEARS_GLASSES: "wears_glasses",
+    CHRONIC_HEARTBURN: "chronic_heartburn",
+});
+
+export const PATIENT_SYMPTOM_SOURCE_TYPES = Object.freeze({
+    TRUE_DIAGNOSIS: "trueDiagnosis",
+    HARMFUL_HABIT: "harmfulHabit",
+    OCCUPATION: "occupation",
+    AGE: "age",
+    LIFE_EVENT: "lifeEvent",
+});
+
+export const RANDOM_PATIENT_NAMES = [
+    { value: "Anna", genders: [PATIENT_GENDERS.FEMALE] },
+    { value: "Altyn", genders: [PATIENT_GENDERS.FEMALE, PATIENT_GENDERS.MALE] },
+    { value: "Toya", genders: [PATIENT_GENDERS.FEMALE] },
+    { value: "Khulan", genders: [PATIENT_GENDERS.FEMALE, PATIENT_GENDERS.MALE] },
+    { value: "Lun", genders: [PATIENT_GENDERS.FEMALE, PATIENT_GENDERS.MALE] },
+    { value: "Burduk", genders: [PATIENT_GENDERS.MALE] },
+    { value: "Tolkowy", genders: [PATIENT_GENDERS.MALE] },
+    { value: "Oktai", genders: [PATIENT_GENDERS.MALE] },
+    { value: "Laska", genders: [PATIENT_GENDERS.FEMALE] },
+    { value: "Mariya", genders: [PATIENT_GENDERS.FEMALE] },
+    { value: "Mishka", genders: [PATIENT_GENDERS.FEMALE, PATIENT_GENDERS.MALE] },
+    { value: "Nara", genders: [PATIENT_GENDERS.FEMALE] },
+    { value: "Nika", genders: [PATIENT_GENDERS.FEMALE] },
+    { value: "Bobok", genders: [PATIENT_GENDERS.FEMALE, PATIENT_GENDERS.MALE] },
+    { value: "Pavel", genders: [PATIENT_GENDERS.MALE] },
+    { value: "Shchur", genders: [PATIENT_GENDERS.MALE] },
+    { value: "Lyuta", genders: [PATIENT_GENDERS.FEMALE] },
+    { value: "Fila", genders: [PATIENT_GENDERS.FEMALE, PATIENT_GENDERS.MALE] },
+    { value: "Vera", genders: [PATIENT_GENDERS.FEMALE] },
+    { value: "Yargi", genders: [PATIENT_GENDERS.MALE] },
+    { value: "Olusha", genders: [PATIENT_GENDERS.FEMALE] },
+    { value: "Zhytochnik", genders: [PATIENT_GENDERS.MALE] },
+    { value: "Yunat", genders: [PATIENT_GENDERS.MALE] },
+    { value: "Emilia", genders: [PATIENT_GENDERS.FEMALE] },
+    { value: "Sotnik", genders: [PATIENT_GENDERS.MALE] },
+    { value: "Tuutei", genders: [PATIENT_GENDERS.FEMALE, PATIENT_GENDERS.MALE] },
+    { value: "Voronok", genders: [PATIENT_GENDERS.MALE] },
+    { value: "Astrild", genders: [PATIENT_GENDERS.FEMALE, PATIENT_GENDERS.MALE] },
+    { value: "Chernyak", genders: [PATIENT_GENDERS.MALE] },
+    { value: "Myrosya", genders: [PATIENT_GENDERS.FEMALE] },
+    { value: "Petrel", genders: [PATIENT_GENDERS.MALE] },
+    { value: "Khariton", genders: [PATIENT_GENDERS.MALE] },
+    { value: "Aristarkh", genders: [PATIENT_GENDERS.MALE] },
+    { value: "Sakh Men", genders: [PATIENT_GENDERS.FEMALE, PATIENT_GENDERS.MALE] },
+    { value: "Poshinok", genders: [PATIENT_GENDERS.MALE] },
+    { value: "Kira", genders: [PATIENT_GENDERS.FEMALE] },
+    { value: "Marfa", genders: [PATIENT_GENDERS.FEMALE] },
+    { value: "Lyudmila", genders: [PATIENT_GENDERS.FEMALE] },
+    { value: "Yegor", genders: [PATIENT_GENDERS.MALE] },
+    { value: "Makar", genders: [PATIENT_GENDERS.MALE] },
+    { value: "Dmitry", genders: [PATIENT_GENDERS.MALE] },
+    { value: "Semyon", genders: [PATIENT_GENDERS.MALE] },
+    { value: "Konstantin", genders: [PATIENT_GENDERS.MALE] },
+    { value: "Sergey", genders: [PATIENT_GENDERS.MALE] },
+    { value: "Ilya", genders: [PATIENT_GENDERS.MALE] },
+];
+
+export const RANDOM_PATIENT_LAST_NAMES = [
+    "Ankudinov",
+    "Baskakov",
+    "Gantimurov",
+    "Goncharov",
+    "Grishin",
+    "Kabanov",
+    "Karmin",
+    "Kharitonov",
+    "Kudrin",
+    "Mishchenko",
+    "Sidorenko",
+    "Naraev",
+    "Sablin",
+    "Shchurov",
+    "Sotnik",
+    "Yunatov",
+    "Zhytochnikov",
+    "Lyut",
+    "Voronkov",
+    "Chernyakov",
+];
+
+export const RANDOM_MARITAL_STATUSES = [
+    { value: "single", weight: 50 },
+    { value: "married", weight: 20 },
+    { value: "widowed", weight: 10 },
+    { value: "betrothed", weight: 10 },
+    { value: "divorced", weight: 5 },
+];
+
+//todo: make values into arrays, for multiple label variants
+export const RANDOM_OCCUPATIONS = [
+    {
+        value: "abbatoir clerk",
+        tags: [PATIENT_PROFILE_TAGS.ANIMAL_EXPOSURE, PATIENT_PROFILE_TAGS.BLOOD_EXPOSURE],
+    },
+    {
+        value: "apothecary assistant",
+        tags: [PATIENT_PROFILE_TAGS.CHEMICAL_EXPOSURE, PATIENT_PROFILE_TAGS.EYE_STRAIN],
+    },
+    {
+        value: "bakery hand",
+        tags: [PATIENT_PROFILE_TAGS.HEAT_EXPOSURE, PATIENT_PROFILE_TAGS.DUST_EXPOSURE],
+    },
+    { value: "bookkeeper", tags: [PATIENT_PROFILE_TAGS.EYE_STRAIN] },
+    {
+        value: "carter",
+        tags: [PATIENT_PROFILE_TAGS.HEAVY_LABOR, PATIENT_PROFILE_TAGS.COLD_EXPOSURE],
+    },
+    {
+        value: "chimney sweep",
+        tags: [PATIENT_PROFILE_TAGS.DUST_EXPOSURE, PATIENT_PROFILE_TAGS.HOME_SMOKE],
+    },
+    {
+        value: "dock porter",
+        tags: [PATIENT_PROFILE_TAGS.HEAVY_LABOR, PATIENT_PROFILE_TAGS.WATER_EXPOSURE],
+    },
+    {
+        value: "dressmaker",
+        tags: [PATIENT_PROFILE_TAGS.EYE_STRAIN, PATIENT_PROFILE_TAGS.ALLERGEN_EXPOSURE],
+    },
+    {
+        value: "factory stoker",
+        tags: [PATIENT_PROFILE_TAGS.HEAT_EXPOSURE, PATIENT_PROFILE_TAGS.HOME_SMOKE],
+    },
+    {
+        value: "ferryman",
+        tags: [PATIENT_PROFILE_TAGS.WATER_EXPOSURE, PATIENT_PROFILE_TAGS.COLD_EXPOSURE],
+    },
+    {
+        value: "gravedigger's assistant",
+        tags: [
+            PATIENT_PROFILE_TAGS.SOIL_EXPOSURE,
+            PATIENT_PROFILE_TAGS.HEAVY_LABOR,
+            PATIENT_PROFILE_TAGS.RODENT_EXPOSURE,
+        ],
+    },
+    {
+        value: "laundress",
+        tags: [PATIENT_PROFILE_TAGS.WATER_EXPOSURE, PATIENT_PROFILE_TAGS.CHEMICAL_EXPOSURE],
+    },
+    {
+        value: "night watchman",
+        tags: [PATIENT_PROFILE_TAGS.NIGHT_WORK, PATIENT_PROFILE_TAGS.COLD_EXPOSURE],
+    },
+    {
+        value: "rail yard mechanic",
+        tags: [
+            PATIENT_PROFILE_TAGS.HEAVY_MACHINERY,
+            PATIENT_PROFILE_TAGS.HEAVY_LABOR,
+            PATIENT_PROFILE_TAGS.HEARING_WEAR,
+        ],
+    },
+    {
+        value: "schoolteacher",
+        tags: [PATIENT_PROFILE_TAGS.EYE_STRAIN, PATIENT_PROFILE_TAGS.CROWD_EXPOSURE],
+    },
+    {
+        value: "seamstress",
+        tags: [PATIENT_PROFILE_TAGS.EYE_STRAIN, PATIENT_PROFILE_TAGS.DUST_EXPOSURE],
+    },
+    {
+        value: "soap boiler",
+        tags: [PATIENT_PROFILE_TAGS.CHEMICAL_EXPOSURE, PATIENT_PROFILE_TAGS.HEAT_EXPOSURE],
+    },
+    {
+        value: "station clerk",
+        tags: [PATIENT_PROFILE_TAGS.CROWD_EXPOSURE, PATIENT_PROFILE_TAGS.EYE_STRAIN],
+    },
+    {
+        value: "tallow renderer",
+        tags: [
+            PATIENT_PROFILE_TAGS.ANIMAL_EXPOSURE,
+            PATIENT_PROFILE_TAGS.HOME_SMOKE,
+            PATIENT_PROFILE_TAGS.CHEMICAL_EXPOSURE,
+        ],
+    },
+    {
+        value: "tannery worker",
+        tags: [PATIENT_PROFILE_TAGS.CHEMICAL_EXPOSURE, PATIENT_PROFILE_TAGS.ANIMAL_EXPOSURE],
+    },
+    {
+        value: "town orderly",
+        tags: [PATIENT_PROFILE_TAGS.CROWD_EXPOSURE, PATIENT_PROFILE_TAGS.SEWAGE_EXPOSURE],
+    },
+    {
+        value: "warehouse tallyman",
+        tags: [PATIENT_PROFILE_TAGS.DUST_EXPOSURE, PATIENT_PROFILE_TAGS.EYE_STRAIN],
+    },
+    {
+        value: "aspiring herb bride",
+        tags: [
+            PATIENT_PROFILE_TAGS.STEPPE_EXPOSURE,
+            PATIENT_PROFILE_TAGS.ALLERGEN_EXPOSURE,
+            PATIENT_PROFILE_TAGS.CHEMICAL_EXPOSURE,
+        ],
+    },
+    {
+        value: "works for Stamatin",
+        tags: [PATIENT_PROFILE_TAGS.CHEMICAL_EXPOSURE, PATIENT_PROFILE_TAGS.DUST_EXPOSURE],
+    },
+    { value: "dancer", tags: [PATIENT_PROFILE_TAGS.HEAVY_LABOR, PATIENT_PROFILE_TAGS.HEAD_INJURY] },
+    { value: "drunk", tags: [PATIENT_PROFILE_TAGS.ALCOHOL_USE, PATIENT_PROFILE_TAGS.STREET_LIFE] },
+    {
+        value: "shopkeeper",
+        tags: [PATIENT_PROFILE_TAGS.CROWD_EXPOSURE, PATIENT_PROFILE_TAGS.EYE_STRAIN],
+    },
+    {
+        value: "dyer",
+        tags: [PATIENT_PROFILE_TAGS.CHEMICAL_EXPOSURE, PATIENT_PROFILE_TAGS.DUST_EXPOSURE],
+    },
+    {
+        value: "street sweeper",
+        tags: [
+            PATIENT_PROFILE_TAGS.DUST_EXPOSURE,
+            PATIENT_PROFILE_TAGS.COLD_EXPOSURE,
+            PATIENT_PROFILE_TAGS.SEWAGE_EXPOSURE,
+        ],
+    },
+    {
+        value: "cutpurse thug",
+        tags: [
+            PATIENT_PROFILE_TAGS.BRAWLER,
+            PATIENT_PROFILE_TAGS.HEAD_INJURY,
+            PATIENT_PROFILE_TAGS.STREET_LIFE,
+        ],
+    },
+    {
+        value: "Termitary guard",
+        tags: [
+            PATIENT_PROFILE_TAGS.CROWD_EXPOSURE,
+            PATIENT_PROFILE_TAGS.BRAWLER,
+            PATIENT_PROFILE_TAGS.NIGHT_WORK,
+        ],
+    },
+    {
+        value: "vagrant",
+        tags: [
+            PATIENT_PROFILE_TAGS.STREET_LIFE,
+            PATIENT_PROFILE_TAGS.POOR_HYGIENE,
+            PATIENT_PROFILE_TAGS.MALNOURISHED,
+        ],
+    },
+    {
+        value: "apprentice herbalist",
+        tags: [
+            PATIENT_PROFILE_TAGS.STEPPE_EXPOSURE,
+            PATIENT_PROFILE_TAGS.ALLERGEN_EXPOSURE,
+            PATIENT_PROFILE_TAGS.CHEMICAL_EXPOSURE,
+        ],
+    },
+    {
+        value: "apprentice midwife",
+        tags: [
+            PATIENT_PROFILE_TAGS.CROWD_EXPOSURE,
+            PATIENT_PROFILE_TAGS.BLOOD_EXPOSURE,
+            PATIENT_PROFILE_TAGS.NIGHT_WORK,
+        ],
+    },
+    { value: "manual laborer", tags: [PATIENT_PROFILE_TAGS.HEAVY_LABOR] },
+    {
+        value: "bandit",
+        tags: [
+            PATIENT_PROFILE_TAGS.BRAWLER,
+            PATIENT_PROFILE_TAGS.HEAD_INJURY,
+            PATIENT_PROFILE_TAGS.STREET_LIFE,
+        ],
+    },
+    {
+        value: "wannabe scientist",
+        tags: [PATIENT_PROFILE_TAGS.CHEMICAL_EXPOSURE, PATIENT_PROFILE_TAGS.EYE_STRAIN],
+    },
+    {
+        value: "wannabe artist",
+        tags: [PATIENT_PROFILE_TAGS.EYE_STRAIN, PATIENT_PROFILE_TAGS.CHEMICAL_EXPOSURE],
+    },
+    {
+        value: "'artist'",
+        tags: [
+            PATIENT_PROFILE_TAGS.EYE_STRAIN,
+            PATIENT_PROFILE_TAGS.CHEMICAL_EXPOSURE,
+            PATIENT_PROFILE_TAGS.ALCOHOL_USE,
+        ],
+    },
+    {
+        value: "studies botany",
+        tags: [
+            PATIENT_PROFILE_TAGS.ALLERGEN_EXPOSURE,
+            PATIENT_PROFILE_TAGS.STEPPE_EXPOSURE,
+            PATIENT_PROFILE_TAGS.EYE_STRAIN,
+        ],
+    },
+    {
+        value: "studies anatomy",
+        tags: [
+            PATIENT_PROFILE_TAGS.EYE_STRAIN,
+            PATIENT_PROFILE_TAGS.BLOOD_EXPOSURE,
+            PATIENT_PROFILE_TAGS.CHEMICAL_EXPOSURE,
+        ],
+    },
+    {
+        value: "studies medicine",
+        tags: [
+            PATIENT_PROFILE_TAGS.CROWD_EXPOSURE,
+            PATIENT_PROFILE_TAGS.EYE_STRAIN,
+            PATIENT_PROFILE_TAGS.NIGHT_WORK,
+        ],
+    },
+    {
+        value: "shop-floor worker",
+        tags: [
+            PATIENT_PROFILE_TAGS.HEAVY_MACHINERY,
+            PATIENT_PROFILE_TAGS.DUST_EXPOSURE,
+            PATIENT_PROFILE_TAGS.HEARING_WEAR,
+        ],
+    },
+    {
+        value: "charlatan healer",
+        tags: [PATIENT_PROFILE_TAGS.CHEMICAL_EXPOSURE, PATIENT_PROFILE_TAGS.STEPPE_EXPOSURE],
+    },
+    {
+        value: "dealer",
+        tags: [PATIENT_PROFILE_TAGS.CROWD_EXPOSURE, PATIENT_PROFILE_TAGS.STREET_LIFE],
+    },
+    {
+        value: "housewife",
+        tags: [PATIENT_PROFILE_TAGS.HOME_SMOKE, PATIENT_PROFILE_TAGS.ALLERGEN_EXPOSURE],
+    },
+    {
+        value: "does not remember",
+        tags: [PATIENT_PROFILE_TAGS.MEMORY_ISSUES],
+        weight: 0.2,
+        requiresAnySymptoms: ["Memory lapses"],
+        displayOverrideOnly: true,
+    },
+    {
+        value: "unclear (?)",
+        tags: [PATIENT_PROFILE_TAGS.MEMORY_ISSUES],
+        weight: 0.15,
+        requiresAnySymptoms: ["Memory lapses", "Hallucinations"],
+        displayOverrideOnly: true,
+    },
+    {
+        value: "academy student",
+        tags: [PATIENT_PROFILE_TAGS.CROWD_EXPOSURE, PATIENT_PROFILE_TAGS.EYE_STRAIN],
+    },
+    {
+        value: "herb bride",
+        tags: [
+            PATIENT_PROFILE_TAGS.STEPPE_EXPOSURE,
+            PATIENT_PROFILE_TAGS.ALLERGEN_EXPOSURE,
+            PATIENT_PROFILE_TAGS.CHEMICAL_EXPOSURE,
+        ],
+    },
+    { value: "accountant", tags: [PATIENT_PROFILE_TAGS.EYE_STRAIN] },
+    {
+        value: "solider",
+        tags: [
+            PATIENT_PROFILE_TAGS.BRAWLER,
+            PATIENT_PROFILE_TAGS.HEAVY_LABOR,
+            PATIENT_PROFILE_TAGS.HEAD_INJURY,
+        ],
+    },
+    {
+        value: "teacher",
+        tags: [PATIENT_PROFILE_TAGS.EYE_STRAIN, PATIENT_PROFILE_TAGS.CROWD_EXPOSURE],
+    },
+    {
+        value: "keeps bees",
+        tags: [PATIENT_PROFILE_TAGS.INSECT_EXPOSURE, PATIENT_PROFILE_TAGS.STEPPE_EXPOSURE],
+    },
+];
+
+//todo: make values into arrays of possible labels, unless possible, no label used twice for the same habit
+export const RANDOM_HARMFUL_HABITS = [
+    { value: "smoker", tags: [PATIENT_PROFILE_TAGS.SMOKER] },
+    { value: "drinks heavily", tags: [PATIENT_PROFILE_TAGS.ALCOHOL_USE] },
+    {
+        value: "gets into fights",
+        tags: [PATIENT_PROFILE_TAGS.BRAWLER, PATIENT_PROFILE_TAGS.HEAD_INJURY],
+    },
+    {
+        value: "works and sleeps in dust",
+        tags: [PATIENT_PROFILE_TAGS.DUST_EXPOSURE, PATIENT_PROFILE_TAGS.HOME_SMOKE],
+    },
+    {
+        value: "eats badly and irregularly",
+        tags: [PATIENT_PROFILE_TAGS.MALNOURISHED, PATIENT_PROFILE_TAGS.CHRONIC_HEARTBURN],
+    },
+    { value: "lives in stale indoor smoke", tags: [PATIENT_PROFILE_TAGS.HOME_SMOKE] },
+    { value: "uses dubious powders and tinctures", tags: [PATIENT_PROFILE_TAGS.CHEMICAL_EXPOSURE] },
+    { value: "poor hygiene", tags: [PATIENT_PROFILE_TAGS.POOR_HYGIENE] },
+    {
+        value: "spends nights out in the cold",
+        tags: [PATIENT_PROFILE_TAGS.COLD_EXPOSURE, PATIENT_PROFILE_TAGS.NIGHT_WORK],
+    },
+    {
+        value: "lives from stall food and sour spirits",
+        tags: [PATIENT_PROFILE_TAGS.ALCOHOL_USE, PATIENT_PROFILE_TAGS.CHRONIC_HEARTBURN],
+    },
+];
+
+export const RANDOM_LIFE_EVENTS = [
+    { value: "had smallpox as a child", tags: [PATIENT_PROFILE_TAGS.WEAK_CONSTITUTION] },
+    { value: "wears spectacles", tags: [PATIENT_PROFILE_TAGS.WEARS_GLASSES] },
+    { value: "recent head injury", tags: [PATIENT_PROFILE_TAGS.HEAD_INJURY] },
+    { value: "suffers migraines", tags: [PATIENT_PROFILE_TAGS.MIGRAINES] },
+    { value: "prone to hormonal eczema", tags: [PATIENT_PROFILE_TAGS.HORMONAL_FLARES] },
+    { value: "chronic heartburn", tags: [PATIENT_PROFILE_TAGS.CHRONIC_HEARTBURN] },
+    { value: "old hearing damage", tags: [PATIENT_PROFILE_TAGS.HEARING_WEAR], minAge: 24 },
+    { value: "frail constitution", tags: [PATIENT_PROFILE_TAGS.WEAK_CONSTITUTION] },
+    {
+        value: "is pregnant",
+        tags: [PATIENT_PROFILE_TAGS.PREGNANCY],
+        genders: [PATIENT_GENDERS.FEMALE],
+        maxAge: 42,
+    },
+    { value: "works night shifts", tags: [PATIENT_PROFILE_TAGS.NIGHT_WORK] },
+];
+
+export const RANDOM_RESIDENCES = [
+    {
+        value: "Tanners",
+        tags: [PATIENT_PROFILE_TAGS.CHEMICAL_EXPOSURE, PATIENT_PROFILE_TAGS.CROWD_EXPOSURE],
+    },
+    {
+        value: "Skinners",
+        tags: [PATIENT_PROFILE_TAGS.ANIMAL_EXPOSURE, PATIENT_PROFILE_TAGS.CROWD_EXPOSURE],
+    },
+    { value: "Hindquarters", tags: [PATIENT_PROFILE_TAGS.CROWD_EXPOSURE] },
+    {
+        value: "Factory",
+        tags: [PATIENT_PROFILE_TAGS.CROWD_EXPOSURE, PATIENT_PROFILE_TAGS.DUST_EXPOSURE],
+    },
+    {
+        value: "The Crude Sprawl",
+        tags: [
+            PATIENT_PROFILE_TAGS.CROWD_EXPOSURE,
+            PATIENT_PROFILE_TAGS.POOR_HYGIENE,
+            PATIENT_PROFILE_TAGS.STREET_LIFE,
+        ],
+    },
+    { value: "Flank", tags: [PATIENT_PROFILE_TAGS.CROWD_EXPOSURE] },
+    { value: "Chine", tags: [PATIENT_PROFILE_TAGS.CROWD_EXPOSURE] },
+    { value: "Backbone", tags: [PATIENT_PROFILE_TAGS.CROWD_EXPOSURE] },
+    { value: "Marrow", tags: [PATIENT_PROFILE_TAGS.CROWD_EXPOSURE] },
+    {
+        value: "Gut",
+        tags: [PATIENT_PROFILE_TAGS.CROWD_EXPOSURE, PATIENT_PROFILE_TAGS.SEWAGE_EXPOSURE],
+    },
+    { value: "Maw", tags: [PATIENT_PROFILE_TAGS.CROWD_EXPOSURE] },
+    { value: "Spleen", tags: [PATIENT_PROFILE_TAGS.CROWD_EXPOSURE] },
+    {
+        value: "Warehouses",
+        tags: [PATIENT_PROFILE_TAGS.DUST_EXPOSURE, PATIENT_PROFILE_TAGS.CROWD_EXPOSURE],
+    },
+    { value: "Atrium", tags: [PATIENT_PROFILE_TAGS.CROWD_EXPOSURE] },
+    { value: "Bridge Square", tags: [PATIENT_PROFILE_TAGS.CROWD_EXPOSURE] },
+    {
+        value: "Shekhen steppe village",
+        tags: [PATIENT_PROFILE_TAGS.STEPPE_EXPOSURE, PATIENT_PROFILE_TAGS.INSECT_EXPOSURE],
+    },
+    {
+        value: "does not remember",
+        tags: [PATIENT_PROFILE_TAGS.MEMORY_ISSUES],
+        weight: 0.2,
+        requiresAnySymptoms: ["Memory lapses"],
+        displayOverrideOnly: true,
+    },
+    {
+        value: "no premament residence",
+        tags: [PATIENT_PROFILE_TAGS.STREET_LIFE, PATIENT_PROFILE_TAGS.POOR_HYGIENE],
+    },
+    {
+        value: "unclear (?)",
+        tags: [PATIENT_PROFILE_TAGS.MEMORY_ISSUES],
+        weight: 0.15,
+        requiresAnySymptoms: ["Memory lapses", "Hallucinations"],
+        displayOverrideOnly: true,
+    },
+    {
+        value: "sleeps on the streets",
+        tags: [
+            PATIENT_PROFILE_TAGS.STREET_LIFE,
+            PATIENT_PROFILE_TAGS.COLD_EXPOSURE,
+            PATIENT_PROFILE_TAGS.POOR_HYGIENE,
+        ],
+    },
+];
+
+export const PHOTO_PATHS = Array.from({ length: 24 }, (_, index) => {
+    return `assets/patient_${String(index + 1).padStart(2, "0")}.png`;
+});
+
+export const DEFAULT_PATIENT_SEED = Date.now().toString();
+
+export const SYMPTOM_NAME_BY_KEY = new Map(
+    symptomGroups
+        .flatMap((group) => group.symptoms)
+        .map((symptom) => [String(symptom).trim().toLowerCase(), symptom]),
+);
+
+export const DIAGNOSES_BY_NAME = new Map(
+    diagnoses.map((diagnosis) => [
+        diagnosis.name,
+        {
+            ...diagnosis,
+            symptoms: (diagnosis.symptoms || []).map(canonicalizeSymptom).filter(Boolean),
+        },
+    ]),
+);
+
+export const DIAGNOSIS_TAG_HINTS = {
+    "Acute Bronchopathy": [
+        PATIENT_PROFILE_TAGS.SMOKER,
+        PATIENT_PROFILE_TAGS.DUST_EXPOSURE,
+        PATIENT_PROFILE_TAGS.HOME_SMOKE,
+        PATIENT_PROFILE_TAGS.CROWD_EXPOSURE,
+        PATIENT_PROFILE_TAGS.COLD_EXPOSURE,
+    ],
+    "Anemic Vasculopathy": [
+        PATIENT_PROFILE_TAGS.SOIL_EXPOSURE,
+        PATIENT_PROFILE_TAGS.STEPPE_EXPOSURE,
+    ],
+    "Bonkowski's Fever": [PATIENT_PROFILE_TAGS.CROWD_EXPOSURE, PATIENT_PROFILE_TAGS.WATER_EXPOSURE],
+    "Burning Fever": [PATIENT_PROFILE_TAGS.POOR_HYGIENE, PATIENT_PROFILE_TAGS.CROWD_EXPOSURE],
+    Cholera: [
+        PATIENT_PROFILE_TAGS.WATER_EXPOSURE,
+        PATIENT_PROFILE_TAGS.POOR_HYGIENE,
+        PATIENT_PROFILE_TAGS.CROWD_EXPOSURE,
+        PATIENT_PROFILE_TAGS.STREET_LIFE,
+    ],
+    Consumption: [
+        PATIENT_PROFILE_TAGS.SMOKER,
+        PATIENT_PROFILE_TAGS.DUST_EXPOSURE,
+        PATIENT_PROFILE_TAGS.CROWD_EXPOSURE,
+        PATIENT_PROFILE_TAGS.MALNOURISHED,
+        PATIENT_PROFILE_TAGS.WEAK_CONSTITUTION,
+    ],
+    Ergotism: [
+        PATIENT_PROFILE_TAGS.MALNOURISHED,
+        PATIENT_PROFILE_TAGS.ALCOHOL_USE,
+        PATIENT_PROFILE_TAGS.STEPPE_EXPOSURE,
+        PATIENT_PROFILE_TAGS.CHEMICAL_EXPOSURE,
+    ],
+    Favus: [
+        PATIENT_PROFILE_TAGS.POOR_HYGIENE,
+        PATIENT_PROFILE_TAGS.MALNOURISHED,
+        PATIENT_PROFILE_TAGS.STREET_LIFE,
+    ],
+    "Fruit Typhoid": [
+        PATIENT_PROFILE_TAGS.CROWD_EXPOSURE,
+        PATIENT_PROFILE_TAGS.WATER_EXPOSURE,
+        PATIENT_PROFILE_TAGS.POOR_HYGIENE,
+    ],
+    Hepatitis: [PATIENT_PROFILE_TAGS.ALCOHOL_USE, PATIENT_PROFILE_TAGS.POOR_HYGIENE],
+    Influenza: [
+        PATIENT_PROFILE_TAGS.CROWD_EXPOSURE,
+        PATIENT_PROFILE_TAGS.SMOKER,
+        PATIENT_PROFILE_TAGS.COLD_EXPOSURE,
+        PATIENT_PROFILE_TAGS.PREGNANCY,
+    ],
+    "Ink Syndrome": [PATIENT_PROFILE_TAGS.WATER_EXPOSURE, PATIENT_PROFILE_TAGS.CHEMICAL_EXPOSURE],
+    Lymphotonitis: [PATIENT_PROFILE_TAGS.INSECT_EXPOSURE, PATIENT_PROFILE_TAGS.POOR_HYGIENE],
+    Measles: [PATIENT_PROFILE_TAGS.CROWD_EXPOSURE],
+    "Nephropathia epidemica": [
+        PATIENT_PROFILE_TAGS.STEPPE_EXPOSURE,
+        PATIENT_PROFILE_TAGS.POOR_HYGIENE,
+    ],
+    Pellagra: [PATIENT_PROFILE_TAGS.MALNOURISHED, PATIENT_PROFILE_TAGS.STREET_LIFE],
+    "Pulmomucous Syndrome": [
+        PATIENT_PROFILE_TAGS.WATER_EXPOSURE,
+        PATIENT_PROFILE_TAGS.STEPPE_EXPOSURE,
+    ],
+    "Serpent Syndrome": [PATIENT_PROFILE_TAGS.STEPPE_EXPOSURE],
+    "Steppe Dryness": [PATIENT_PROFILE_TAGS.STEPPE_EXPOSURE, PATIENT_PROFILE_TAGS.DUST_EXPOSURE],
+    "Steppe Gastrodermal Fever": [
+        PATIENT_PROFILE_TAGS.STEPPE_EXPOSURE,
+        PATIENT_PROFILE_TAGS.INSECT_EXPOSURE,
+        PATIENT_PROFILE_TAGS.MALNOURISHED,
+    ],
+    Stoneskin: [PATIENT_PROFILE_TAGS.STEPPE_EXPOSURE, PATIENT_PROFILE_TAGS.WATER_EXPOSURE],
+    Tularemia: [
+        PATIENT_PROFILE_TAGS.INSECT_EXPOSURE,
+        PATIENT_PROFILE_TAGS.ANIMAL_EXPOSURE,
+        PATIENT_PROFILE_TAGS.STEPPE_EXPOSURE,
+    ],
+    "Twyrine Syndrome": [
+        PATIENT_PROFILE_TAGS.ALCOHOL_USE,
+        PATIENT_PROFILE_TAGS.CHEMICAL_EXPOSURE,
+        PATIENT_PROFILE_TAGS.STEPPE_EXPOSURE,
+    ],
+    Typhus: [
+        PATIENT_PROFILE_TAGS.CROWD_EXPOSURE,
+        PATIENT_PROFILE_TAGS.POOR_HYGIENE,
+        PATIENT_PROFILE_TAGS.STREET_LIFE,
+    ],
+};
+
+export const TAG_SYMPTOM_RULES = {
+    [PATIENT_PROFILE_TAGS.ALCOHOL_USE]: [
+        "Headache",
+        "Nausea and vomiting",
+        "Weakness",
+        "Belching",
+        "Burning sensation in the heart",
+    ],
+    [PATIENT_PROFILE_TAGS.ALLERGEN_EXPOSURE]: [
+        "Redness around the nose",
+        "Red eyes",
+        "Itchy skin",
+        "Eczema",
+    ],
+    [PATIENT_PROFILE_TAGS.ANIMAL_EXPOSURE]: ["Skin redness", "Weakness", "Insect bites"],
+    [PATIENT_PROFILE_TAGS.BLOOD_EXPOSURE]: ["Weakness", "Hematomas"],
+    [PATIENT_PROFILE_TAGS.BRAWLER]: ["Hematomas", "Headache", "Loss of coordination"],
+    [PATIENT_PROFILE_TAGS.CHEMICAL_EXPOSURE]: [
+        "Headache",
+        "Nausea and vomiting",
+        "Skin redness",
+        "Eczema",
+        "Cough",
+    ],
+    [PATIENT_PROFILE_TAGS.COLD_EXPOSURE]: ["Cough", "Weakness", "Joint pain"],
+    [PATIENT_PROFILE_TAGS.CROWD_EXPOSURE]: ["Cough", "Fever", "Weakness"],
+    [PATIENT_PROFILE_TAGS.DUST_EXPOSURE]: [
+        "Cough",
+        "Difficulty breathing",
+        "Redness around the nose",
+        "Photophobia",
+    ],
+    [PATIENT_PROFILE_TAGS.EYE_STRAIN]: ["Headache", "Visual impairment"],
+    [PATIENT_PROFILE_TAGS.HEAD_INJURY]: ["Headache", "Memory lapses", "Loss of coordination"],
+    [PATIENT_PROFILE_TAGS.HEARING_WEAR]: ["Hearing impairment"],
+    [PATIENT_PROFILE_TAGS.HEAT_EXPOSURE]: ["Weakness", "Headache"],
+    [PATIENT_PROFILE_TAGS.HEAVY_LABOR]: ["Weakness", "Joint pain", "Hematomas"],
+    [PATIENT_PROFILE_TAGS.HEAVY_MACHINERY]: ["Hearing impairment", "Hematomas", "Weakness"],
+    [PATIENT_PROFILE_TAGS.HOME_SMOKE]: ["Cough", "Redness around the nose", "Difficulty breathing"],
+    [PATIENT_PROFILE_TAGS.HORMONAL_FLARES]: ["Eczema", "Skin redness", "Itchy skin"],
+    [PATIENT_PROFILE_TAGS.INSECT_EXPOSURE]: ["Insect bites", "Skin redness", "Fever"],
+    [PATIENT_PROFILE_TAGS.MALNOURISHED]: ["Weakness", "Dystrophy", "Severe pallor"],
+    [PATIENT_PROFILE_TAGS.MEMORY_ISSUES]: ["Memory lapses"],
+    [PATIENT_PROFILE_TAGS.MIGRAINES]: ["Headache", "Photophobia"],
+    [PATIENT_PROFILE_TAGS.NIGHT_WORK]: ["Weakness", "Headache"],
+    [PATIENT_PROFILE_TAGS.POOR_HYGIENE]: ["Itchy skin", "Skin redness", "Weakness"],
+    [PATIENT_PROFILE_TAGS.PREGNANCY]: ["Heartburn", "Nausea and vomiting", "Weakness"],
+    [PATIENT_PROFILE_TAGS.RODENT_EXPOSURE]: ["Fever", "Weakness"],
+    [PATIENT_PROFILE_TAGS.SEWAGE_EXPOSURE]: ["Diarrhea", "Nausea and vomiting", "Weakness"],
+    [PATIENT_PROFILE_TAGS.SMOKER]: ["Cough", "Difficulty breathing", "Haemoptysis"],
+    [PATIENT_PROFILE_TAGS.SOIL_EXPOSURE]: ["Weakness", "Headache", "Hematomas"],
+    [PATIENT_PROFILE_TAGS.STEPPE_EXPOSURE]: [
+        "Red eyes",
+        "Photophobia",
+        "Ichthyosis",
+        "Insect bites",
+    ],
+    [PATIENT_PROFILE_TAGS.STREET_LIFE]: ["Weakness", "Severe pallor", "Itchy skin"],
+    [PATIENT_PROFILE_TAGS.WATER_EXPOSURE]: ["Red eyes", "Nausea and vomiting", "Cough"],
+    [PATIENT_PROFILE_TAGS.WEAK_CONSTITUTION]: ["Weakness", "Severe pallor"],
+    [PATIENT_PROFILE_TAGS.WEARS_GLASSES]: ["Visual impairment", "Headache"],
+    [PATIENT_PROFILE_TAGS.CHRONIC_HEARTBURN]: [
+        "Heartburn",
+        "Burning sensation in the heart",
+        "Belching",
+    ],
+};
+
 export const symptomImageVariants = {
     "Chest pain": ["sympt_chest_pain-1.png"],
     Cough: ["sympt_cough-1.png"],
@@ -785,3 +1337,10 @@ export const symptomImageVariants = {
         "sympt_vein_damage-3.png",
     ],
 };
+
+export function canonicalizeSymptom(symptom) {
+    const key = String(symptom || "")
+        .trim()
+        .toLowerCase();
+    return SYMPTOM_NAME_BY_KEY.get(key) || String(symptom || "").trim();
+}
