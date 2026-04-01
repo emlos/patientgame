@@ -851,7 +851,7 @@ function updateActiveTabs() {
     elements.allPatientsTab.classList.toggle("active", state.showAllPatients);
 }
 
-function render(init = False) {
+function render(init = false) {
     renderLeftPage();
     renderSymptoms();
     renderDiagnoses();
