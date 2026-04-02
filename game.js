@@ -5,6 +5,7 @@ import {
     INLINE_GAP_MAX,
     INITIAL_PATIENT_COUNT,
     diagnoses,
+    getSymptomDefinition,
     symptomGroups,
     symptomImageVariants,
 } from "./data.js";
@@ -59,9 +60,21 @@ const elements = {
     diagnosisDetailText: document.getElementById("diagnosisDetailText"),
 };
 
+const SYMPTOM_TOOLTIP_DELAY_MS = 500;
+
 const tooltipState = {
-    activeAnchor: null,
-    element: null,
+    group: {
+        activeAnchor: null,
+        element: null,
+        showTimer: null,
+        className: "floating-symptom-tooltip floating-symptom-tooltip--group",
+    },
+    symptom: {
+        activeAnchor: null,
+        element: null,
+        showTimer: null,
+        className: "floating-symptom-tooltip floating-symptom-tooltip--symptom",
+    },
 };
 
 function escapeAttribute(value) {
@@ -77,20 +90,31 @@ function escapeHtml(value) {
         .replace(/'/g, "&#39;");
 }
 
-function hideFloatingSymptomTooltip() {
-    if (!tooltipState.element) return;
+function clearFloatingTooltipTimer(state) {
+    if (!state?.showTimer) return;
 
-    tooltipState.activeAnchor = null;
-    tooltipState.element.classList.remove("visible");
-    tooltipState.element.style.left = "";
-    tooltipState.element.style.top = "";
+    clearTimeout(state.showTimer);
+    state.showTimer = null;
 }
 
-function getFloatingSymptomTooltip() {
-    if (tooltipState.element) return tooltipState.element;
+function hideFloatingSymptomTooltip(state) {
+    if (!state) return;
+
+    clearFloatingTooltipTimer(state);
+    state.activeAnchor = null;
+
+    if (!state.element) return;
+
+    state.element.classList.remove("visible");
+    state.element.style.left = "";
+    state.element.style.top = "";
+}
+
+function getFloatingSymptomTooltip(state) {
+    if (state.element) return state.element;
 
     const tooltip = document.createElement("div");
-    tooltip.className = "floating-symptom-tooltip";
+    tooltip.className = state.className;
     tooltip.setAttribute("role", "tooltip");
     tooltip.innerHTML = `
       <div class="symptom-tooltip-title"></div>
@@ -98,16 +122,21 @@ function getFloatingSymptomTooltip() {
     `;
 
     elements.rightPage.appendChild(tooltip);
-    tooltipState.element = tooltip;
+    state.element = tooltip;
     return tooltip;
 }
 
-function positionFloatingSymptomTooltip(anchor) {
-    if (!anchor || !elements.rightPage) return;
+function positionFloatingSymptomTooltip(state, anchor) {
+    if (!state || !anchor || !elements.rightPage) return;
 
     const title = anchor.dataset.tooltipTitle || "";
     const body = anchor.dataset.tooltipBody || "";
-    const tooltip = getFloatingSymptomTooltip();
+    if (!title && !body) {
+        hideFloatingSymptomTooltip(state);
+        return;
+    }
+
+    const tooltip = getFloatingSymptomTooltip(state);
 
     tooltip.querySelector(".symptom-tooltip-title").textContent = title;
     tooltip.querySelector(".symptom-tooltip-body").textContent = body;
@@ -132,19 +161,55 @@ function positionFloatingSymptomTooltip(anchor) {
     tooltip.style.top = `${top}px`;
     tooltip.style.visibility = "visible";
 
-    tooltipState.activeAnchor = anchor;
+    state.activeAnchor = anchor;
+}
+
+function scheduleFloatingSymptomTooltip(state, anchor, delay = 0) {
+    if (!state || !anchor) return;
+
+    clearFloatingTooltipTimer(state);
+
+    if (!anchor.dataset.tooltipTitle && !anchor.dataset.tooltipBody) {
+        hideFloatingSymptomTooltip(state);
+        return;
+    }
+
+    if (delay <= 0) {
+        positionFloatingSymptomTooltip(state, anchor);
+        return;
+    }
+
+    state.showTimer = window.setTimeout(() => {
+        positionFloatingSymptomTooltip(state, anchor);
+        state.showTimer = null;
+    }, delay);
 }
 
 function bindSymptomTooltips() {
-    hideFloatingSymptomTooltip();
+    hideFloatingSymptomTooltip(tooltipState.group);
+    hideFloatingSymptomTooltip(tooltipState.symptom);
 
     elements.symptomsScroll.querySelectorAll(".symptom-icon-wrap").forEach((iconWrap) => {
-        const showTooltip = () => positionFloatingSymptomTooltip(iconWrap);
+        const showTooltip = () => positionFloatingSymptomTooltip(tooltipState.group, iconWrap);
+        const hideTooltip = () => hideFloatingSymptomTooltip(tooltipState.group);
 
         iconWrap.addEventListener("mouseenter", showTooltip);
         iconWrap.addEventListener("focus", showTooltip);
-        iconWrap.addEventListener("mouseleave", hideFloatingSymptomTooltip);
-        iconWrap.addEventListener("blur", hideFloatingSymptomTooltip);
+        iconWrap.addEventListener("mouseleave", hideTooltip);
+        iconWrap.addEventListener("blur", hideTooltip);
+    });
+
+    elements.symptomsScroll.querySelectorAll(".symptom-item").forEach((item) => {
+        const scheduleTooltip = () => {
+            hideFloatingSymptomTooltip(tooltipState.symptom);
+            scheduleFloatingSymptomTooltip(tooltipState.symptom, item, SYMPTOM_TOOLTIP_DELAY_MS);
+        };
+        const hideTooltip = () => hideFloatingSymptomTooltip(tooltipState.symptom);
+
+        item.addEventListener("mouseenter", scheduleTooltip);
+        item.addEventListener("mouseleave", hideTooltip);
+        item.addEventListener("focusin", scheduleTooltip);
+        item.addEventListener("focusout", hideTooltip);
     });
 }
 
@@ -547,9 +612,18 @@ function renderLeftPage() {
 
 function createSymptomItem(symptom, checked, highlighted, patientId, groupId) {
     const symptomId = `${patientId}-${groupId}-${symptom.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+    const symptomDefinition = getSymptomDefinition(symptom);
+    const tooltipTitle = symptomDefinition?.label || symptom;
+    const tooltipBody = symptomDefinition?.tooltip || "";
+
     return `
 
-        <label class="symptom-item ${highlighted ? "highlight" : ""}" data-symptom="${escapeAttribute(symptom)}">
+        <label
+          class="symptom-item ${highlighted ? "highlight" : ""}"
+          data-symptom="${escapeAttribute(symptom)}"
+          data-tooltip-title="${escapeAttribute(tooltipTitle)}"
+          data-tooltip-body="${escapeAttribute(tooltipBody)}"
+        >
           <input type="checkbox" id="${symptomId}" ${checked ? "checked" : ""} />
           <span class="symptom-label">${symptom}</span>
           <div class="symptom-background"><span></span><span></span><span></span></div>
@@ -878,15 +952,19 @@ elements.symptomsScroll.addEventListener("change", onSymptomToggle);
 elements.diagnosesScroll.addEventListener("click", onDiagnosisClick);
 
 elements.symptomsScroll.addEventListener("scroll", () => {
-    if (tooltipState.activeAnchor) {
-        positionFloatingSymptomTooltip(tooltipState.activeAnchor);
-    }
+    [tooltipState.group, tooltipState.symptom].forEach((stateEntry) => {
+        if (stateEntry.activeAnchor) {
+            positionFloatingSymptomTooltip(stateEntry, stateEntry.activeAnchor);
+        }
+    });
 });
 
 window.addEventListener("resize", () => {
-    if (tooltipState.activeAnchor) {
-        positionFloatingSymptomTooltip(tooltipState.activeAnchor);
-    }
+    [tooltipState.group, tooltipState.symptom].forEach((stateEntry) => {
+        if (stateEntry.activeAnchor) {
+            positionFloatingSymptomTooltip(stateEntry, stateEntry.activeAnchor);
+        }
+    });
 });
 
 if (elements.diagnosisDetailModal) {
