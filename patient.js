@@ -94,8 +94,29 @@ export function createGameSeed(patientRecords = []) {
     return hashString(base || DEFAULT_PATIENT_SEED);
 }
 
+function getEntryDisplayOptions(entry) {
+    if (typeof entry === "string") {
+        return entry.trim() ? [entry.trim()] : [];
+    }
+
+    if (Array.isArray(entry?.value)) {
+        return [...new Set(entry.value.map((value) => String(value ?? "").trim()).filter(Boolean))];
+    }
+
+    if (entry?.value === null || entry?.value === undefined) {
+        return [];
+    }
+
+    const value = String(entry.value).trim();
+    return value ? [value] : [];
+}
+
 function getEntryValue(entry) {
-    return typeof entry === "string" ? entry : entry?.value || "";
+    if (typeof entry === "object" && typeof entry?.selectedValue === "string") {
+        return entry.selectedValue.trim();
+    }
+
+    return getEntryDisplayOptions(entry)[0] || "";
 }
 
 function getEntryWeight(entry) {
@@ -178,6 +199,54 @@ function sampleWithoutReplacement(entries, count, rng = patientRandom) {
     }
 
     return picked;
+}
+
+function getUsedEntryLabels(existingPatients = [], collectionKey, entryId) {
+    const usedLabels = new Set();
+
+    existingPatients.forEach((patient) => {
+        if (collectionKey === "harmfulHabits") {
+            (patient?.harmfulHabits || []).forEach((entry) => {
+                if (entry?.id === entryId && entry?.label) {
+                    usedLabels.add(entry.label);
+                }
+            });
+            return;
+        }
+
+        if (collectionKey === "internalLifeEvent") {
+            const lifeEvent = patient?.internalLifeEvent;
+            if (lifeEvent?.id === entryId && lifeEvent?.label) {
+                usedLabels.add(lifeEvent.label);
+            }
+        }
+    });
+
+    return usedLabels;
+}
+
+function pickEntryDisplayValue(entry, existingPatients = [], collectionKey, rng = patientRandom) {
+    const options = getEntryDisplayOptions(entry);
+    if (!options.length) {
+        return "";
+    }
+
+    const usedLabels = getUsedEntryLabels(existingPatients, collectionKey, getEntryId(entry));
+    const unusedOptions = options.filter((option) => !usedLabels.has(option));
+    const pool = unusedOptions.length ? unusedOptions : options;
+
+    return getRandomItem(pool, rng);
+}
+
+function withPickedEntryDisplayValue(entry, existingPatients = [], collectionKey, rng = patientRandom) {
+    if (!entry) {
+        return entry;
+    }
+
+    return {
+        ...entry,
+        selectedValue: pickEntryDisplayValue(entry, existingPatients, collectionKey, rng),
+    };
 }
 
 function pickSomeCount(probabilities, rng = patientRandom) {
@@ -494,14 +563,22 @@ export function createRandomPatient(existingPatients = [], existingIds = new Set
         RANDOM_HARMFUL_HABITS,
         harmfulHabitCount,
         patientRandom,
-    );
+    ).map((entry) => withPickedEntryDisplayValue(entry, existingPatients, "harmfulHabits", patientRandom));
     const lifeEventPool = RANDOM_LIFE_EVENTS.filter((entry) =>
         isEntryEligible(entry, { gender: identity.gender, age }),
     );
-    const lifeEventEntry =
+    const baseLifeEventEntry =
         lifeEventPool.length && patientRandom() < 0.72
             ? pickWeightedItem(lifeEventPool, patientRandom)
             : null;
+    const lifeEventEntry = baseLifeEventEntry
+        ? withPickedEntryDisplayValue(
+              baseLifeEventEntry,
+              existingPatients,
+              "internalLifeEvent",
+              patientRandom,
+          )
+        : null;
     const ageSource = createAgeSource(age, patientRandom);
     const profileTags = [
         ...getEntryTags(baseOccupationEntry),

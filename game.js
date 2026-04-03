@@ -916,6 +916,8 @@ function onDiagnosisLock() {
     const currentPatient = getCurrentPatient();
     if (!lockPatientDiagnosis(currentPatient)) return;
 
+    //TODO: type diagnosis in field in UI
+
     render();
 }
 

@@ -1313,51 +1313,143 @@ export const RANDOM_OCCUPATIONS = [
     },
 ];
 
-//todo: make values into arrays of possible labels, unless possible, no label used twice for the same habit
 export const RANDOM_HARMFUL_HABITS = [
-    { value: "smoker", tags: [PATIENT_PROFILE_TAGS.SMOKER] },
-    { value: "drinks heavily", tags: [PATIENT_PROFILE_TAGS.ALCOHOL_USE] },
     {
-        value: "gets into fights",
+        id: "smoker",
+        value: ["smoker", "smokes", "fond of tobacco"],
+        tags: [PATIENT_PROFILE_TAGS.SMOKER],
+    },
+    {
+        id: "heavy-drinker",
+        value: ["drinks heavily", "given to drink", "drunk"],
+        tags: [PATIENT_PROFILE_TAGS.ALCOHOL_USE],
+    },
+    {
+        id: "brawler",
+        value: ["gets into fights", "quarrels often", "known brawler"],
         tags: [PATIENT_PROFILE_TAGS.BRAWLER, PATIENT_PROFILE_TAGS.HEAD_INJURY],
     },
     {
-        value: "works and sleeps in dust",
+        id: "dust-exposure",
+        value: [
+            "works and sleeps in dust",
+            "constantly covered in dust",
+            "breathes dust daily",
+        ],
         tags: [PATIENT_PROFILE_TAGS.DUST_EXPOSURE, PATIENT_PROFILE_TAGS.HOME_SMOKE],
     },
     {
-        value: "eats badly and irregularly",
+        id: "poor-diet",
+        value: [
+            "poor diet",
+            "often goes half-fed",
+            "poor and irregular meals",
+        ],
         tags: [PATIENT_PROFILE_TAGS.MALNOURISHED, PATIENT_PROFILE_TAGS.CHRONIC_HEARTBURN],
     },
-    { value: "lives in stale indoor smoke", tags: [PATIENT_PROFILE_TAGS.HOME_SMOKE] },
-    { value: "uses dubious powders and tinctures", tags: [PATIENT_PROFILE_TAGS.CHEMICAL_EXPOSURE] },
-    { value: "poor hygiene", tags: [PATIENT_PROFILE_TAGS.POOR_HYGIENE] },
     {
-        value: "spends nights out in the cold",
+        id: "indoor-smoke",
+        value: [
+            "lives in stale indoor smoke",
+            "home full of smoke",
+            "breathes stove smoke",
+        ],
+        tags: [PATIENT_PROFILE_TAGS.HOME_SMOKE],
+    },
+    {
+        id: "dubious-remedies",
+        value: [
+            "uses dubious powders and tinctures",
+            "refuses conventional medicine",
+            "fond of patent cures",
+        ],
+        tags: [PATIENT_PROFILE_TAGS.CHEMICAL_EXPOSURE],
+    },
+    {
+        id: "poor-hygiene",
+        value: ["poor hygiene", "rarely washes", "unclean habits"],
+        tags: [PATIENT_PROFILE_TAGS.POOR_HYGIENE],
+    },
+    {
+        id: "cold-nights",
+        value: [
+            "hypothermia",
+            "sleeps in the cold",
+            "out at night in frost",
+        ],
         tags: [PATIENT_PROFILE_TAGS.COLD_EXPOSURE, PATIENT_PROFILE_TAGS.NIGHT_WORK],
     },
     {
-        value: "lives from stall food and sour spirits",
+        id: "stall-food-and-sour-spirits",
+        value: [
+            "eats stall food and swill",
+            "drunk & malnourished (lifestyle)",
+        ],
         tags: [PATIENT_PROFILE_TAGS.ALCOHOL_USE, PATIENT_PROFILE_TAGS.CHRONIC_HEARTBURN],
     },
 ];
 
 export const RANDOM_LIFE_EVENTS = [
-    { value: "had smallpox as a child", tags: [PATIENT_PROFILE_TAGS.WEAK_CONSTITUTION] },
-    { value: "wears spectacles", tags: [PATIENT_PROFILE_TAGS.WEARS_GLASSES] },
-    { value: "recent head injury", tags: [PATIENT_PROFILE_TAGS.HEAD_INJURY] },
-    { value: "suffers migraines", tags: [PATIENT_PROFILE_TAGS.MIGRAINES] },
-    { value: "prone to hormonal eczema", tags: [PATIENT_PROFILE_TAGS.HORMONAL_FLARES] },
-    { value: "chronic heartburn", tags: [PATIENT_PROFILE_TAGS.CHRONIC_HEARTBURN] },
-    { value: "old hearing damage", tags: [PATIENT_PROFILE_TAGS.HEARING_WEAR], minAge: 24 },
-    { value: "frail constitution", tags: [PATIENT_PROFILE_TAGS.WEAK_CONSTITUTION] },
     {
-        value: "is pregnant",
+        id: "childhood-smallpox",
+        value: [
+            "had smallpox as a child",
+            "smallpox in childhood",
+        ],
+        tags: [PATIENT_PROFILE_TAGS.WEAK_CONSTITUTION],
+    },
+    {
+        id: "wears-spectacles",
+        value: ["wears spectacles", "keeps spectacles", "spectacles"],
+        tags: [PATIENT_PROFILE_TAGS.WEARS_GLASSES],
+    },
+    {
+        id: "recent-head-injury",
+        value: ["head injury", "bruises on temple", "fresh head trauma"],
+        tags: [PATIENT_PROFILE_TAGS.HEAD_INJURY],
+    },
+    {
+        id: "migraines",
+        value: ["suffers migraines", "frequent migraines", "prone to migraines"],
+        tags: [PATIENT_PROFILE_TAGS.MIGRAINES],
+    },
+    {
+        id: "hormonal-eczema",
+        value: [
+            "prone to hormonal eczema",
+            "hormonal eczema flares",
+            "eczema comes and goes",
+        ],
+        tags: [PATIENT_PROFILE_TAGS.HORMONAL_FLARES],
+    },
+    {
+        id: "chronic-heartburn",
+        value: ["chronic heartburn", "long troubled by heartburn", "habitual heartburn"],
+        tags: [PATIENT_PROFILE_TAGS.CHRONIC_HEARTBURN],
+    },
+    {
+        id: "hearing-damage",
+        value: ["old hearing damage", "half-deaf in one ear", "childhood injury (hearing)"],
+        tags: [PATIENT_PROFILE_TAGS.HEARING_WEAR],
+        minAge: 24,
+    },
+    {
+        id: "frail-constitution",
+        value: ["frail constitution", "sickly build", "delicate constitution"],
+        tags: [PATIENT_PROFILE_TAGS.WEAK_CONSTITUTION],
+    },
+    {
+        id: "pregnancy",
+        value: ["is pregnant", "with child", "expecting"],
         tags: [PATIENT_PROFILE_TAGS.PREGNANCY],
         genders: [PATIENT_GENDERS.FEMALE],
         maxAge: 42,
     },
-    { value: "works night shifts", tags: [PATIENT_PROFILE_TAGS.NIGHT_WORK] },
+    {
+        id: "night-shifts",
+        value: ["works night shifts", "night work", "keeps to night shifts"],
+        tags: [PATIENT_PROFILE_TAGS.NIGHT_WORK],
+    },
 ];
 
 export const RANDOM_RESIDENCES = [
