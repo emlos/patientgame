@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>patient dialogue test</title>
+    <script src="https://cdn.jsdelivr.net/npm/inkjs@2.4.0/dist/ink-full.min.js"></script>
+    <link rel="stylesheet" href="./patientdialogue.css">
+</head>
+
+<body>
+    <main class="layout">
+        <section class="panel">
+            <h1>patient dialogue test</h1>
+            <p>
+                Hardcoded Vera prototype using inkjs for the interview tree, plus a tiny notebook loop for symptom
+                selection and targeted follow-ups.
+            </p>
+
+            <div id="patientSummary" class="summary"></div>
+
+            <div class="toolbar">
+                <button id="restartButton" type="button">Restart case</button>
+            </div>
+
+            <h2>Interview</h2>
+            <div id="storyOutput" class="output"></div>
+
+            <h3>Choices</h3>
+            <div id="choiceList" class="choice-list"></div>
+        </section>
+
+        <section class="panel">
+            <h2>Notebook</h2>
+            <p class="muted">
+                Broad questioning reveals clue candidates. Tick the symptoms you want to test against the diagnosis list,
+                then return with targeted follow-ups.
+            </p>
+
+            <h3>Discovered clues</h3>
+            <div id="clueList" class="output compact"></div>
+
+            <h3>Context notes</h3>
+            <div id="worldClueList" class="output compact"></div>
+
+            <h3>Selected symptoms</h3>
+            <div id="symptomChecklist" class="checklist"></div>
+
+            <h3>Possible diagnoses</h3>
+            <div id="diagnosisList" class="output compact"></div>
+
+            <h3>Follow-up questions</h3>
+            <div id="followupList" class="choice-list"></div>
+
+            <h3>Runtime</h3>
+            <pre id="debugOutput" class="output compact"></pre>
+
+            <details>
+                <summary>Generated Ink source</summary>
+                <pre id="inkSourceOutput" class="output ink-source"></pre>
+            </details>
+        </section>
+    </main>
+
+    <script type="module" src="./patientdialogue.js"></script>
+</body>
+
+</html>

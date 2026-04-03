@@ -1,0 +1,95 @@
+body {
+    margin: 16px;
+    font-family: monospace;
+    line-height: 1.45;
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: minmax(320px, 1.1fr) minmax(320px, 0.9fr);
+    gap: 16px;
+    align-items: start;
+}
+
+.panel {
+    border: 1px solid #000;
+    padding: 12px;
+}
+
+.summary {
+    border: 1px solid #000;
+    padding: 8px;
+    margin-bottom: 12px;
+    white-space: pre-wrap;
+}
+
+.toolbar,
+.choice-list,
+.checklist {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.toolbar {
+    margin-bottom: 12px;
+}
+
+.output {
+    border: 1px solid #000;
+    padding: 8px;
+    min-height: 84px;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.output.compact {
+    min-height: 56px;
+}
+
+.output.ink-source {
+    max-height: 320px;
+    overflow: auto;
+}
+
+#storyOutput {
+    min-height: 280px;
+}
+
+.story-line,
+.system-line,
+.note-line {
+    margin-bottom: 8px;
+}
+
+.system-line,
+.note-line,
+.muted {
+    opacity: 0.75;
+}
+
+.choice-list button,
+.checklist label,
+.toolbar button {
+    font: inherit;
+}
+
+.checklist label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid #000;
+    padding: 4px 6px;
+}
+
+.diagnosis-entry,
+.clue-entry,
+.world-entry {
+    margin-bottom: 8px;
+}
+
+@media (max-width: 900px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+}
