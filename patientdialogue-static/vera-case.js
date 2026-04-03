@@ -11,6 +11,8 @@ export const VERA_CASE = Object.freeze({
         personality: "guarded but articulate",
         opener: '"I cannot bear the light today. My head feels fit to split."',
     },
+    patience: 4,
+    maxFollowupSymptomsSelected: 2,
     notebookIntro:
         "The notebook starts empty. During the interview, symptom clues will appear here as you pick them out of what Vera actually says.",
     broadQuestions: [
@@ -22,7 +24,7 @@ export const VERA_CASE = Object.freeze({
             trustDelta: 1,
             lines: [
                 "You let her set the pace before you begin taking notes.",
-                'Vera lowers her hand from her temple, but keeps squinting at the light.',
+                "Vera lowers her hand from her temple, but keeps squinting at the light.",
                 '"Since yesterday the headache has worsened. The daylight is the cruelest part of it."',
             ],
             reveals: [
@@ -46,7 +48,7 @@ export const VERA_CASE = Object.freeze({
             trustDelta: -1,
             lines: [
                 "You begin with the chart instead of comfort.",
-                'She stiffens at that, then answers anyway.',
+                "She stiffens at that, then answers anyway.",
                 '"My head pounds, and the light makes it worse. Is that plain enough?"',
             ],
             reveals: [
@@ -131,7 +133,7 @@ export const VERA_CASE = Object.freeze({
             label: "Ask what else feels wrong",
             once: true,
             lines: [
-                'Vera rubs at one forearm through her sleeve.',
+                "Vera rubs at one forearm through her sleeve.",
                 '"My skin feels wrong somehow. Too warm. Tight, almost."',
             ],
             reveals: [
@@ -171,9 +173,7 @@ export const VERA_CASE = Object.freeze({
         {
             symptom: "Photophobia",
             label: "Ask whether even ordinary light hurts",
-            lines: [
-                '"Yes," she says at once. "The window is bad enough. The lamp is worse."',
-            ],
+            lines: ['"Yes," she says at once. "The window is bad enough. The lamp is worse."'],
             reveals: [
                 {
                     symptom: "Photophobia",
@@ -214,7 +214,7 @@ export const VERA_CASE = Object.freeze({
             symptom: "Skin redness",
             label: "Ask her to describe the skin change clearly",
             lines: [
-                'She hesitates, then rolls her sleeve back enough to show you.',
+                "She hesitates, then rolls her sleeve back enough to show you.",
                 '"There are red patches, yes. I noticed them proper this morning."',
             ],
             reveals: [

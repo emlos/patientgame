@@ -10,12 +10,16 @@ const elements = {
     worldClueList: document.getElementById("worldClueList"),
     symptomChecklist: document.getElementById("symptomChecklist"),
     diagnosisList: document.getElementById("diagnosisList"),
+    returnToPatientButton: document.getElementById("returnToPatientButton"),
+    followupStatus: document.getElementById("followupStatus"),
     followupList: document.getElementById("followupList"),
     debugOutput: document.getElementById("debugOutput"),
     inkSourceOutput: document.getElementById("inkSourceOutput"),
 };
 
 const watchedVariables = ["trust", "broad_questions_asked", "interview_complete"];
+const defaultPatience = 4;
+const defaultMaxFollowupSymptomsSelected = 3;
 const strengthRank = Object.freeze({ soft: 1, strong: 2 });
 
 const state = {
@@ -26,6 +30,9 @@ const state = {
     selectedSymptoms: new Set(),
     askedFollowups: new Set(),
     notebookUnlocked: false,
+    isBackWithPatient: false,
+    patienceRemaining: 0,
+    patienceMax: 0,
 };
 
 function slugify(value) {
@@ -75,6 +82,9 @@ function resetOutputs() {
     state.selectedSymptoms.clear();
     state.askedFollowups.clear();
     state.notebookUnlocked = false;
+    state.isBackWithPatient = false;
+    state.patienceMax = Number(VERA_CASE.patience) || defaultPatience;
+    state.patienceRemaining = state.patienceMax;
 }
 
 function renderPatientSummary() {
@@ -83,6 +93,7 @@ function renderPatientSummary() {
         `${patient.name}, ${patient.age}`,
         `${patient.occupation}, ${patient.residence}`,
         `personality: ${patient.personality}`,
+        `patience remaining: ${state.patienceRemaining}/${state.patienceMax}`,
         `true diagnosis for this prototype: ${patient.trueDiagnosis}`,
         `opening complaint: ${patient.opener}`,
     ].join("\n");
@@ -192,7 +203,8 @@ function renderDiagnoses() {
     const selectedLabels = Array.from(state.selectedSymptoms);
 
     if (!selectedLabels.length) {
-        elements.diagnosisList.textContent = "Select one or more symptom clues to test the case against the diagnosis list.";
+        elements.diagnosisList.textContent =
+            "Select one or more symptom clues to test the case against the diagnosis list.";
         return;
     }
 
@@ -203,10 +215,16 @@ function renderDiagnoses() {
     const likelyMatches = diagnoses
         .map((diagnosis) => ({
             diagnosis,
-            overlap: selectedLabels.filter((symptom) => (diagnosis.symptoms || []).includes(symptom)).length,
+            overlap: selectedLabels.filter((symptom) =>
+                (diagnosis.symptoms || []).includes(symptom),
+            ).length,
         }))
         .filter((entry) => entry.overlap > 0)
-        .sort((left, right) => right.overlap - left.overlap || left.diagnosis.name.localeCompare(right.diagnosis.name))
+        .sort(
+            (left, right) =>
+                right.overlap - left.overlap ||
+                left.diagnosis.name.localeCompare(right.diagnosis.name),
+        )
         .slice(0, 6);
 
     elements.diagnosisList.innerHTML = "";
@@ -238,25 +256,93 @@ function renderDiagnoses() {
     });
 }
 
+function getSelectedSymptomCount() {
+    return state.selectedSymptoms.size;
+}
+
+function getMaxFollowupSymptomsSelected() {
+    return Number(VERA_CASE.maxFollowupSymptomsSelected) || defaultMaxFollowupSymptomsSelected;
+}
+
+function getAvailableFollowups() {
+    return VERA_CASE.followups.filter((followup) => {
+        return (
+            state.selectedSymptoms.has(followup.symptom) &&
+            !state.askedFollowups.has(followup.symptom)
+        );
+    });
+}
+
+function getFollowupBlockReason() {
+    if (!state.notebookUnlocked) {
+        return "Conclude the broad interview first to unlock targeted follow-ups.";
+    }
+
+    if (state.patienceRemaining <= 0 && !state.isBackWithPatient) {
+        return "She has run out of patience and will not answer more targeted questions.";
+    }
+
+    if (!getSelectedSymptomCount()) {
+        return "Select one or more discovered symptoms before returning to the patient.";
+    }
+
+    const maxSelected = getMaxFollowupSymptomsSelected();
+    if (getSelectedSymptomCount() > maxSelected) {
+        return `Too many symptoms are selected. Narrow it down to ${maxSelected} or fewer before going back.`;
+    }
+
+    if (!getAvailableFollowups().length) {
+        return "None of the currently selected symptoms have an unanswered targeted follow-up left.";
+    }
+
+    return "";
+}
+
 function renderFollowups() {
     elements.followupList.innerHTML = "";
+    elements.followupStatus.innerHTML = "";
+
+    const blockReason = getFollowupBlockReason();
+    const available = getAvailableFollowups();
+    const status = document.createElement("div");
+    status.className =
+        `followup-status ${state.patienceRemaining <= 1 ? "status-danger" : ""}`.trim();
 
     if (!state.notebookUnlocked) {
+        status.textContent = blockReason;
+        elements.followupStatus.appendChild(status);
+        elements.returnToPatientButton.disabled = true;
+        return;
+    }
+
+    if (state.isBackWithPatient) {
+        status.textContent =
+            state.patienceRemaining > 0
+                ? `You are back with Vera. Each extra pass costs patience. Remaining: ${state.patienceRemaining}/${state.patienceMax}.`
+                : blockReason;
+    } else {
+        status.textContent = `Patience remaining: ${state.patienceRemaining}/${state.patienceMax}. Another return visit will cost 1 patience.`;
+    }
+
+    elements.followupStatus.appendChild(status);
+
+    const canReturn = !blockReason && !state.isBackWithPatient;
+    elements.returnToPatientButton.disabled = !canReturn;
+
+    if (!state.isBackWithPatient) {
         const note = document.createElement("div");
         note.className = "muted";
-        note.textContent = "Conclude the broad interview first to unlock targeted follow-ups.";
+        note.textContent =
+            blockReason ||
+            "When you are ready, return to the patient to ask one sharper follow-up.";
         elements.followupList.appendChild(note);
         return;
     }
 
-    const available = VERA_CASE.followups.filter((followup) => {
-        return state.selectedSymptoms.has(followup.symptom) && !state.askedFollowups.has(followup.symptom);
-    });
-
-    if (!available.length) {
+    if (blockReason) {
         const note = document.createElement("div");
         note.className = "muted";
-        note.textContent = "Select a discovered symptom to ask a sharper follow-up about.";
+        note.textContent = blockReason;
         elements.followupList.appendChild(note);
         return;
     }
@@ -273,9 +359,14 @@ function renderFollowups() {
 }
 
 function renderDebug() {
-    const variableSnapshot = watchedVariables.map((name) => `${name}: ${JSON.stringify(getVariable(name))}`);
+    const variableSnapshot = watchedVariables.map(
+        (name) => `${name}: ${JSON.stringify(getVariable(name))}`,
+    );
     const extraSnapshot = [
         `notebookUnlocked: ${JSON.stringify(state.notebookUnlocked)}`,
+        `isBackWithPatient: ${JSON.stringify(state.isBackWithPatient)}`,
+        `patienceRemaining: ${JSON.stringify(state.patienceRemaining)}`,
+        `patienceMax: ${JSON.stringify(state.patienceMax)}`,
         `selectedSymptoms: ${JSON.stringify(Array.from(state.selectedSymptoms))}`,
         `askedFollowups: ${JSON.stringify(Array.from(state.askedFollowups))}`,
     ];
@@ -307,6 +398,7 @@ function revealClue(symptomLabel, strength, note) {
     renderSymptomChecklist();
     renderDiagnoses();
     renderFollowups();
+    renderPatientSummary();
     renderDebug();
 }
 
@@ -317,6 +409,32 @@ function addWorldClue(id, text) {
 
     state.worldClues.push({ id, text });
     renderWorldClues();
+}
+
+function returnToPatientForFollowup() {
+    const blockReason = getFollowupBlockReason();
+    if (blockReason || state.isBackWithPatient) {
+        renderFollowups();
+        renderDebug();
+        return;
+    }
+
+    state.isBackWithPatient = true;
+    state.patienceRemaining = Math.max(0, state.patienceRemaining - 1);
+    appendStoryLine('> "I will come back in a second. I have more questions."', "system-line");
+
+    if (state.patienceRemaining <= 0) {
+        appendStoryLine(`Vera looks exhausted. "Make this the last of it."`, "story-line");
+    } else {
+        appendStoryLine(
+            "You return to the bedside with a narrower line of questioning in mind.",
+            "note-line",
+        );
+    }
+
+    renderPatientSummary();
+    renderFollowups();
+    renderDebug();
 }
 
 function buildBranchBlock(branch, returnTarget) {
@@ -388,12 +506,14 @@ function buildInkSource(caseData) {
         "",
         "=== interview_hub ===",
         "{ trust > 0:",
-        '    Vera answers a little more openly now.',
+        "    Vera answers a little more openly now.",
         "- else:",
-        '    Vera stays guarded and watches your face between answers.',
+        "    Vera stays guarded and watches your face between answers.",
         "}",
         "",
-        ...interviewBranches.map((branch) => buildBranchBlock(branch, branch.unlockNotebook ? "END" : "interview_hub")),
+        ...interviewBranches.map((branch) =>
+            buildBranchBlock(branch, branch.unlockNotebook ? "END" : "interview_hub"),
+        ),
         "",
         ...caseData.followups.flatMap((followup) => {
             const knotName = `followup_${slugify(followup.symptom)}`;
@@ -453,7 +573,7 @@ function continueStory() {
 }
 
 function askFollowup(symptomLabel) {
-    if (!state.story) {
+    if (!state.story || !state.isBackWithPatient) {
         return;
     }
 
@@ -466,6 +586,12 @@ function askFollowup(symptomLabel) {
     appendStoryLine(`> ${followup.label}`, "system-line");
     state.story.ChoosePathString(`followup_${slugify(symptomLabel)}`);
     continueStory();
+    state.isBackWithPatient = false;
+    appendStoryLine(
+        "You step away to the notebook again and sort through what that answer changes.",
+        "note-line",
+    );
+    renderPatientSummary();
     renderFollowups();
 }
 
@@ -495,5 +621,6 @@ function compileStory() {
 }
 
 elements.restartButton.addEventListener("click", compileStory);
+elements.returnToPatientButton.addEventListener("click", returnToPatientForFollowup);
 
 compileStory();

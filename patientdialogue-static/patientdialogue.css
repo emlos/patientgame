@@ -93,3 +93,11 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+.followup-status {
+    margin-bottom: 8px;
+}
+
+.status-danger {
+    font-weight: bold;
+}
