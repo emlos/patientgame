@@ -126,6 +126,11 @@ function getFloatingSymptomTooltip(state) {
     return tooltip;
 }
 
+function pxToVw(px) {
+    const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 1;
+    return `${(px / viewportWidth) * 100}vw`;
+}
+
 function positionFloatingSymptomTooltip(state, anchor) {
     if (!state || !anchor || !elements.rightPage) return;
 
@@ -147,7 +152,7 @@ function positionFloatingSymptomTooltip(state, anchor) {
     const anchorRect = anchor.getBoundingClientRect();
     const pageRect = elements.rightPage.getBoundingClientRect();
     const tooltipRect = tooltip.getBoundingClientRect();
-    const gap = 12;
+    const gap = (window.innerWidth) * 0.010;
     const minTop = 8;
     const maxTop = Math.max(minTop, pageRect.height - tooltipRect.height - 8);
 
@@ -156,9 +161,8 @@ function positionFloatingSymptomTooltip(state, anchor) {
         anchorRect.top - pageRect.top + anchorRect.height / 2 - tooltipRect.height / 2;
     const top = Math.min(Math.max(centeredTop, minTop), maxTop);
 
-    //TODO: transform into vw units to match rest of style.css
-    tooltip.style.left = `${left}px`;
-    tooltip.style.top = `${top}px`;
+    tooltip.style.left = pxToVw(left);
+    tooltip.style.top = pxToVw(top);
     tooltip.style.visibility = "visible";
 
     state.activeAnchor = anchor;
