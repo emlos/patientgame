@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>dialogue test</title>
+    <script src="https://cdn.jsdelivr.net/npm/inkjs@2.4.0/dist/ink-full.min.js"></script>
+    <style>
+        body {
+            font-family: monospace;
+            margin: 16px;
+            line-height: 1.4;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr);
+            gap: 16px;
+            align-items: start;
+        }
+
+        .panel {
+            border: 1px solid #000;
+            padding: 12px;
+        }
+
+        textarea,
+        pre,
+        button {
+            font: inherit;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 360px;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+
+        .toolbar,
+        .choice-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .toolbar {
+            margin: 12px 0;
+        }
+
+        #storyOutput,
+        #debugOutput,
+        #externalOutput,
+        #saveStateOutput,
+        #messageOutput {
+            border: 1px solid #000;
+            padding: 8px;
+            min-height: 80px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        #storyOutput {
+            min-height: 240px;
+        }
+
+        .story-line,
+        .tag-line,
+        .system-line {
+            margin-bottom: 8px;
+        }
+
+        .tag-line,
+        .muted {
+            opacity: 0.7;
+        }
+
+        .choice-list button {
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>inkjs dialogue test</h1>
+    <p>
+        Tiny browser sandbox for feeling out how an ink file can drive dialogue, choices, tags,
+        variables, save/load, and JS callbacks.
+    </p>
+
+    <div class="layout">
+        <section class="panel">
+            <h2>Ink source</h2>
+            <p class="muted">Edit the story, then compile it in the browser.</p>
+            <textarea id="inkSource" spellcheck="false">VAR trust = 0
+VAR clue_count = 0
+VAR river_clue = false
+
+EXTERNAL remember_clue(ref)
+
+=== function remember_clue(ref) ===
+    ~ return ref
+
+-> start
+
+=== start ===
+# scene:intake
+A young laborer sits across from you, cap crushed between nervous hands.
+
+* [Introduce yourself gently]
+    ~ trust = trust + 1
+    You soften your voice.
+    "I'm not here to trap you. I just need the truth."
+    -> interview
+
+* [Go straight to the symptoms]
+    ~ trust = trust - 1
+    You open the chart without smiling.
+    -> interview
+
+=== interview ===
+{ trust > 0:
+    The patient seems a little calmer now.
+- else:
+    The patient answers with obvious caution.
+}
+
+* [Ask about the cough]
+    ~ clue_count = clue_count + 1
+    ~ remember_clue("cough")
+    "How long have you been coughing?"
+    "Since the thaw, doctor."
+    -> interview
+
+* [Ask about work]
+    ~ clue_count = clue_count + 1
+    ~ remember_clue("occupation")
+    "At the tannery. Hides all day."
+    -> interview
+
+* [Ask about drinking water]
+    ~ river_clue = true
+    ~ clue_count = clue_count + 1
+    ~ remember_clue("river")
+    The patient hesitates before answering.
+    "We all drink from the river when the pump freezes."
+    -> interview
+
+* [Finish the interview]
+    -> summary
+
+=== summary ===
+# scene:summary
+You close the chart and review what you have learned.
+
+{ river_clue:
+    The river water may matter.
+- else:
+    You still don't know where the patient gets water.
+}
+
+Clues noted: {clue_count}.
+
+{ trust > 0:
+    The patient looks relieved when you stand.
+- else:
+    The patient watches you leave, unconvinced.
+}
+
+-> END</textarea>
+
+            <div class="toolbar">
+                <button id="compileButton" type="button">Compile + restart</button>
+                <button id="restartButton" type="button">Restart current story</button>
+                <button id="saveButton" type="button">Save state</button>
+                <button id="loadButton" type="button">Load saved state</button>
+            </div>
+
+            <h3>Saved state JSON</h3>
+            <pre id="saveStateOutput"></pre>
+            <h3>Compiler / runtime messages</h3>
+            <pre id="messageOutput"></pre>
+        </section>
+
+        <section class="panel">
+            <h2>Runtime</h2>
+            <div id="storyOutput"></div>
+
+            <h3>Choices</h3>
+            <div class="choice-list" id="choiceList"></div>
+
+            <h3>Current variables</h3>
+            <pre id="debugOutput"></pre>
+
+            <h3>External JS callback log</h3>
+            <pre id="externalOutput"></pre>
+        </section>
+    </div>
+
+    <script>
+        const sampleElements = {
+            inkSource: document.getElementById("inkSource"),
+            compileButton: document.getElementById("compileButton"),
+            restartButton: document.getElementById("restartButton"),
+            saveButton: document.getElementById("saveButton"),
+            loadButton: document.getElementById("loadButton"),
+            storyOutput: document.getElementById("storyOutput"),
+            choiceList: document.getElementById("choiceList"),
+            debugOutput: document.getElementById("debugOutput"),
+            externalOutput: document.getElementById("externalOutput"),
+            saveStateOutput: document.getElementById("saveStateOutput"),
+            messageOutput: document.getElementById("messageOutput"),
+        };
+
+        let compiledStorySource = "";
+        let story = null;
+        let callbackLog = [];
+
+        const watchedVariables = ["trust", "clue_count", "river_clue"];
+
+        function setMessage(text) {
+            sampleElements.messageOutput.textContent = text || "";
+        }
+
+        function getVariable(name) {
+            if (!story) return undefined;
+
+            if (story.variablesState && typeof story.variablesState.$ === "function") {
+                return story.variablesState.$(name);
+            }
+
+            return story.variablesState ? story.variablesState[name] : undefined;
+        }
+
+        function appendStoryLine(text, className = "story-line") {
+            const line = document.createElement("div");
+            line.className = className;
+            line.textContent = text;
+            sampleElements.storyOutput.appendChild(line);
+        }
+
+        function renderDebug() {
+            if (!story) {
+                sampleElements.debugOutput.textContent = "No story compiled.";
+                return;
+            }
+
+            const snapshot = watchedVariables.map((name) => `${name}: ${JSON.stringify(getVariable(name))}`);
+            sampleElements.debugOutput.textContent = snapshot.join("\n");
+        }
+
+        function renderCallbackLog() {
+            sampleElements.externalOutput.textContent = callbackLog.length
+                ? callbackLog.join("\n")
+                : "No external callbacks fired yet.";
+        }
+
+        function scrollStoryToBottom() {
+            sampleElements.storyOutput.scrollTop = sampleElements.storyOutput.scrollHeight;
+        }
+
+        function renderChoices() {
+            sampleElements.choiceList.innerHTML = "";
+
+            if (!story) return;
+
+            if (!story.currentChoices.length) {
+                const endNote = document.createElement("div");
+                endNote.className = "muted";
+                endNote.textContent = story.canContinue ? "Continue available." : "No choices left.";
+                sampleElements.choiceList.appendChild(endNote);
+                return;
+            }
+
+            story.currentChoices.forEach((choice, index) => {
+                const button = document.createElement("button");
+                button.type = "button";
+                button.textContent = choice.text;
+                button.addEventListener("click", () => {
+                    appendStoryLine(`> ${choice.text}`, "system-line");
+                    story.ChooseChoiceIndex(index);
+                    continueStory();
+                });
+                sampleElements.choiceList.appendChild(button);
+            });
+        }
+
+        function continueStory() {
+            if (!story) return;
+
+            while (story.canContinue) {
+                const text = story.Continue().trim();
+                const tags = Array.isArray(story.currentTags) ? story.currentTags : [];
+
+                if (text) {
+                    appendStoryLine(text);
+                }
+
+                if (tags.length) {
+                    appendStoryLine(`# ${tags.join(", ")}`, "tag-line");
+                }
+            }
+
+            renderChoices();
+            renderDebug();
+            renderCallbackLog();
+            scrollStoryToBottom();
+        }
+
+        function resetOutputs() {
+            sampleElements.storyOutput.innerHTML = "";
+            sampleElements.choiceList.innerHTML = "";
+            sampleElements.saveStateOutput.textContent = "";
+            callbackLog = [];
+            renderCallbackLog();
+        }
+
+        function bindExternalFunctions() {
+            if (!story) return;
+
+            story.BindExternalFunction("remember_clue", (ref) => {
+                const entry = `remember_clue(${ref})`;
+                callbackLog.push(entry);
+                renderCallbackLog();
+                return ref;
+            });
+        }
+
+        function formatCompileError(compiler, error) {
+            const parts = [];
+
+            if (compiler) {
+                if (Array.isArray(compiler.errors) && compiler.errors.length) {
+                    parts.push(`Errors:\n${compiler.errors.join("\n")}`);
+                }
+
+                if (Array.isArray(compiler.warnings) && compiler.warnings.length) {
+                    parts.push(`Warnings:\n${compiler.warnings.join("\n")}`);
+                }
+
+                if (Array.isArray(compiler.authorMessages) && compiler.authorMessages.length) {
+                    parts.push(`Author messages:\n${compiler.authorMessages.join("\n")}`);
+                }
+            }
+
+            if (!parts.length && error) {
+                parts.push(error.message || error.stack || String(error));
+            }
+
+            return parts.join("\n\n");
+        }
+
+        function compileStory() {
+            const source = sampleElements.inkSource.value;
+            let compiler = null;
+
+            resetOutputs();
+
+            try {
+                if (!window.inkjs || typeof window.inkjs.Compiler !== "function") {
+                    throw new Error("inkjs compiler not available. Make sure the full browser build loaded correctly.");
+                }
+
+                compiler = new inkjs.Compiler(source);
+                story = compiler.Compile();
+                compiledStorySource = source;
+                bindExternalFunctions();
+                setMessage("Compiled successfully.");
+                continueStory();
+            } catch (error) {
+                story = null;
+                renderChoices();
+                renderDebug();
+                renderCallbackLog();
+                setMessage(formatCompileError(compiler, error));
+            }
+        }
+
+        function restartStory() {
+            if (!compiledStorySource) {
+                compileStory();
+                return;
+            }
+
+            sampleElements.inkSource.value = compiledStorySource;
+            compileStory();
+        }
+
+        function saveState() {
+            if (!story) {
+                setMessage("Nothing to save yet.");
+                return;
+            }
+
+            const stateJson = story.state.ToJson();
+            sampleElements.saveStateOutput.textContent = stateJson;
+            setMessage("State saved from the current runtime position.");
+        }
+
+        function loadState() {
+            if (!story) {
+                setMessage("Compile the story first.");
+                return;
+            }
+
+            const stateJson = sampleElements.saveStateOutput.textContent.trim();
+            if (!stateJson) {
+                setMessage("No saved state JSON found.");
+                return;
+            }
+
+            try {
+                story.state.LoadJson(stateJson);
+                appendStoryLine("[State restored]", "system-line");
+                continueStory();
+                setMessage("State restored.");
+            } catch (error) {
+                setMessage(error && error.stack ? error.stack : String(error));
+            }
+        }
+
+        sampleElements.compileButton.addEventListener("click", compileStory);
+        sampleElements.restartButton.addEventListener("click", restartStory);
+        sampleElements.saveButton.addEventListener("click", saveState);
+        sampleElements.loadButton.addEventListener("click", loadState);
+
+        compileStory();
+    </script>
+</body>
+
+</html>
