@@ -1,144 +1,259 @@
-import re
 import ast
+import re
+from pathlib import Path
+from typing import Dict, List, Tuple
+
 import requests
-from bs4 import BeautifulSoup, NavigableString
+from bs4 import BeautifulSoup, Tag
 
-def extract_dialogue(links, target_names, output_filename="dialogue_extracted.md"):
-    # Use a set for faster lookup
-    target_names = set(target_names)
-    results = {char: [] for char in target_names}
-    
-    for url in links:
-        print(f"Processing {url}...")
-        try:
-            response = requests.get(url)
-            response.raise_for_status()
-            html = response.text
-        except Exception as e:
-            print(f"Failed to fetch {url}: {e}")
-            continue
 
-        soup = BeautifulSoup(html, 'html.parser')
-        
-        # 1. Locate the Javascript block injecting the dialog text 
-        script_content = ""
-        for script in soup.find_all('script'):
-            if script.string and 'inarr=[' in script.string and 'textarr=[' in script.string:
-                script_content = script.string
-                break
-        
-        if not script_content:
-            print(f"Could not find dialogue script arrays in {url}")
-            continue
-            
-        # 2. Extract Javascript arrays efficiently and reliably using string bounds
-        inarr_start = script_content.find("inarr=[")
-        textarr_start = script_content.find("textarr=[")
-        for_start = script_content.find("for (i = 0")
-        
-        if inarr_start == -1 or textarr_start == -1 or for_start == -1:
-            print(f"Could not parse script structure in {url}")
-            continue
-            
-        # Slicing cleanly isolates the arrays (e.g., ['528-62033',...])
-        inarr_str = script_content[inarr_start+6 : textarr_start].strip().rstrip(';')
-        textarr_str = script_content[textarr_start+8 : for_start].strip().rstrip(';')
-        
-        try:
-            # We can use literal_eval safely since JS string array definitions map cleanly to Python's
-            inarr = ast.literal_eval(inarr_str)
-            textarr = ast.literal_eval(textarr_str)
-        except Exception as e:
-            print(f"Error evaluating Javascript arrays in {url}: {e}")
-            continue
-            
-        class_to_text = dict(zip(inarr, textarr))
-        
-        # 3. Parse the DOM tree sequentially to retain the reading order
-        current_char = None
-        current_conv = None
-        last_number = "1"
-        
-        for element in soup.descendants:
-            
-            # Grabbing the depth in the dialogue tree (Text nodes that contain numbers like "1." or "# 1.")
-            if isinstance(element, NavigableString):
-                text = element.strip()
-                match = re.match(r'^#?\s*(\d+)\.?$', text)
-                if match:
-                    last_number = match.group(1)
-                continue
-            
-            # Only process full HTML tags beneath here
-            if not hasattr(element, 'name') or element.name is None:
-                continue
-                
-            # Detect character headers 
-            if element.name in['h1', 'h2', 'h3', 'div']:
-                direct_text = element.get_text(strip=True)
-                # Exact matches help avoid random tags assigning false contexts
-                if direct_text in target_names:
-                    current_char = direct_text
-                    continue
-            
-            # Detect conversation titles
-            if element.name in['h2', 'h3', 'h4'] or element.get('data-role') == 'collapsible':
-                if current_char:
-                    conv_name = element.get_text(separator=" ", strip=True)
-                    # Clean up common UI clutter text
-                    conv_name = re.sub(r'Expand all unique|Collapse all', '', conv_name).strip()
-                    
-                    if conv_name and conv_name != current_char and not re.match(r'^#?\s*\d+\.?$', conv_name):
-                        header = f"#### {conv_name}"
-                        # Check we don't spam duplicate title headers
-                        if not results[current_char] or results[current_char][-1] != header:
-                            if results[current_char] and results[current_char][-1] != "":
-                                results[current_char].append("")
-                            results[current_char].append(header)
-                            last_number = "1"  # Reset depth count on new conversation
-                            
-            # Process Dialogues 
-            classes = element.get('class',[])
-            if classes:
-                for cls in classes:
-                    if cls in class_to_text and current_char:
-                        raw_text = class_to_text[cls]
-                        
-                        # Format the line requested: "1. *Speaker*: Dialogue"
-                        if ": " in raw_text:
-                            speaker, dialogue = raw_text.split(": ", 1)
-                            if speaker == "You":
-                                speaker = "Bachelor"
-                            line = f"{last_number}. *{speaker}*: {dialogue}"
-                        else:
-                            line = f"{last_number}. {raw_text}"
-                            
-                        # If a JS hook repeated the content sequentially, we append once
-                        if not results[current_char] or results[current_char][-1] != line:
-                            results[current_char].append(line)
-                        break
-                        
-    # 4. Save aggregated result cleanly out to the markdown file
-    with open(output_filename, "w", encoding="utf-8") as f:
-        for char in target_names:
-            if results[char]:
-                f.write(f"# {char}\n")
-                for line in results[char]:
-                    f.write(line + "\n")
-                f.write("\n")
-                
-    print(f"Extraction complete! Saved formatted dialog to {output_filename}")
-
-if __name__ == '__main__':
-    names =['Filat', "Bobok", "Sakh Män", "Sharp", "Patchwork", "Sergant Dronte", "Swangoose", "Tuutey", "Astrild", "Burdock", 
-            "Gannet", "Martin", "Kira", "Emilia", "Oktay", "Finch", "Luta", "Crow", "Grouse", "Mirka", "Petrel", ""]
-    links =['https://pathologicdialogue.github.io/html3_en/Day4.html', 
-            "https://pathologicdialogue.github.io/html3_en/Day5.html", 
-            "https://pathologicdialogue.github.io/html3_en/Day9.html",
-            "https://pathologicdialogue.github.io/html3_en/Day6.html",
-            "https://pathologicdialogue.github.io/html3_en/Day10.html",
-            "https://pathologicdialogue.github.io/html3_en/Day7.html",
-            "https://pathologicdialogue.github.io/html3_en/Day8.html",
+# ----------------------------
+# CONFIG
+# ----------------------------
+names =['Filat', "Bobok", "Sakh Män", "Sharp", "Patchwork", "Sergant Dronte", "Swangoose", "Tuutey", "Astrild", "Burdock", 
+        "Gannet", "Martin", "Kira", "Emilia", "Oktay", "Finch", "Luta", "Crow", "Grouse", "Mirka", "Petrel"]
+links =['https://pathologicdialogue.github.io/html3_en/Day4.html', 
+        "https://pathologicdialogue.github.io/html3_en/Day5.html", 
+        "https://pathologicdialogue.github.io/html3_en/Day9.html",
+        "https://pathologicdialogue.github.io/html3_en/Day6.html",
+        "https://pathologicdialogue.github.io/html3_en/Day10.html",
+        "https://pathologicdialogue.github.io/html3_en/Day7.html",
+        "https://pathologicdialogue.github.io/html3_en/Day8.html",
     ]
-    
-    extract_dialogue(links, names, "dialogue.md")
+
+output_file = "tools/pathologic_dialogue.md"
+you_replacement = "Bachelor"
+
+
+# ----------------------------
+# FETCH / PARSE
+# ----------------------------
+def download_html(url: str) -> str:
+    resp = requests.get(url, timeout=30)
+    resp.raise_for_status()
+    return resp.text
+
+
+def parse_js_arrays(html: str) -> Dict[str, str]:
+    inarr_match = re.search(r"inarr\s*=\s*(\[[\s\S]*?\])\s*;\s*textarr\s*=", html)
+    textarr_match = re.search(r"textarr\s*=\s*(\[[\s\S]*?\])\s*;\s*for\s*\(", html)
+
+    if not inarr_match or not textarr_match:
+        raise ValueError("Could not find inarr/textarr arrays in HTML.")
+
+    inarr_raw = inarr_match.group(1)
+    textarr_raw = textarr_match.group(1)
+
+    try:
+        inarr = ast.literal_eval(inarr_raw)
+        textarr = ast.literal_eval(textarr_raw)
+    except Exception as exc:
+        raise ValueError(f"Failed to parse JS arrays: {exc}") from exc
+
+    if len(inarr) != len(textarr):
+        raise ValueError("inarr and textarr length mismatch.")
+
+    return dict(zip(inarr, textarr))
+
+
+def expand_p_text(p: Tag, class_to_text: Dict[str, str]) -> str:
+    for cls in p.get("class", []):
+        if cls in class_to_text:
+            return class_to_text[cls].strip()
+    return p.get_text(" ", strip=True)
+
+
+def get_node_label(p: Tag) -> str:
+    """
+    Preserve the original visible numbering from the page, e.g. '1.' or '2.'
+    """
+    raw = p.get_text(" ", strip=True)
+    m = re.match(r"^(\d+\.)$", raw)
+    if m:
+        return m.group(1)
+    return ""
+
+
+def normalize_line(raw: str, you_replacement: str) -> Tuple[str, str]:
+    raw = " ".join(raw.split()).strip()
+
+    if raw.startswith("You:"):
+        return you_replacement, raw[len("You:"):].strip()
+
+    if ":" in raw:
+        speaker, text = raw.split(":", 1)
+        return speaker.strip(), text.strip()
+
+    return "", raw
+
+
+# ----------------------------
+# TREE WALK
+# ----------------------------
+def walk_dialogue_tree(
+    node: Tag,
+    class_to_text: Dict[str, str],
+    target_names: set,
+    current_section: str,
+    you_replacement: str,
+    out: List[Tuple[str, str, str, str]],
+) -> None:
+    """
+    Recursively walks the DOM in document order.
+
+    Appends:
+        (section_title, node_label, speaker, text)
+    """
+    for child in node.children:
+        if not isinstance(child, Tag):
+            continue
+
+        if child.name == "center":
+            current_section = child.get_text(" ", strip=True)
+            continue
+
+        if child.name == "p":
+            node_label = get_node_label(child)
+            raw = expand_p_text(child, class_to_text).strip()
+
+            if not raw or raw == "(Repeated above)":
+                continue
+
+            speaker, text = normalize_line(raw, you_replacement)
+
+            if not speaker or not text or not current_section:
+                continue
+
+            if speaker in target_names or speaker == you_replacement:
+                out.append((current_section, node_label, speaker, text))
+
+        walk_dialogue_tree(
+            child,
+            class_to_text,
+            target_names,
+            current_section,
+            you_replacement,
+            out,
+        )
+
+
+def extract_dialogue_from_page(
+    html: str,
+    target_names: List[str],
+    you_replacement: str = "Bachelor",
+) -> Dict[str, Dict[str, List[Tuple[str, str, str]]]]:
+    """
+    Returns:
+    {
+        "Filat": {
+            "Hospital_Vasiliy_Final": [
+                ("1.", "Filat", "..."),
+                ("2.", "Bachelor", "..."),
+                ...
+            ]
+        }
+    }
+    """
+    soup = BeautifulSoup(html, "html.parser")
+    class_to_text = parse_js_arrays(html)
+
+    wanted = set(target_names)
+    data: Dict[str, Dict[str, List[Tuple[str, str, str]]]] = {
+        name: {} for name in target_names
+    }
+
+    headers = soup.find_all("div", attrs={"data-role": "header"})
+
+    for header in headers:
+        h1 = header.find("h1")
+        if not h1:
+            continue
+
+        character_name = h1.get_text(" ", strip=True)
+        if character_name not in wanted:
+            continue
+
+        main_div = header.find_next_sibling("div", attrs={"data-role": "main"})
+        if not main_div:
+            continue
+
+        flat_results: List[Tuple[str, str, str, str]] = []
+        walk_dialogue_tree(
+            node=main_div,
+            class_to_text=class_to_text,
+            target_names=wanted,
+            current_section="",
+            you_replacement=you_replacement,
+            out=flat_results,
+        )
+
+        for section_title, node_label, speaker, text in flat_results:
+            data.setdefault(character_name, {}).setdefault(section_title, []).append(
+                (node_label, speaker, text)
+            )
+
+    return data
+
+
+# ----------------------------
+# OUTPUT
+# ----------------------------
+def merge_data(
+    all_data: List[Dict[str, Dict[str, List[Tuple[str, str, str]]]]],
+    names: List[str],
+) -> Dict[str, Dict[str, List[Tuple[str, str, str]]]]:
+    merged: Dict[str, Dict[str, List[Tuple[str, str, str]]]] = {name: {} for name in names}
+
+    for page_data in all_data:
+        for character, sections in page_data.items():
+            for section_title, lines in sections.items():
+                merged.setdefault(character, {}).setdefault(section_title, []).extend(lines)
+
+    return merged
+
+
+def render_markdown(data: Dict[str, Dict[str, List[Tuple[str, str, str]]]]) -> str:
+    parts: List[str] = []
+
+    for character, sections in data.items():
+        if not sections:
+            continue
+
+        parts.append(f"# {character}")
+        parts.append("")
+
+        for section_title, lines in sections.items():
+            if not lines:
+                continue
+
+            parts.append(f"#### {section_title}")
+            for node_label, speaker, text in lines:
+                prefix = node_label if node_label else "?"
+                parts.append(f"{prefix} *{speaker}*: {text}")
+            parts.append("")
+
+    return "\n".join(parts).rstrip() + "\n"
+
+
+def main() -> None:
+    all_data = []
+
+    for url in links:
+        print(f"Processing: {url}")
+        html = download_html(url)
+        page_data = extract_dialogue_from_page(
+            html=html,
+            target_names=names,
+            you_replacement=you_replacement,
+        )
+        all_data.append(page_data)
+
+    merged = merge_data(all_data, names)
+    md = render_markdown(merged)
+
+    Path(output_file).write_text(md, encoding="utf-8")
+    print(f"Saved to {output_file}")
+
+
+if __name__ == "__main__":
+    main()
