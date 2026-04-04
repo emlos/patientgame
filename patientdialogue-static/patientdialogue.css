@@ -47,12 +47,12 @@ body {
     min-height: 56px;
 }
 
-.output.ink-source {
+.output.scrollable {
     max-height: 320px;
     overflow: auto;
 }
 
-#storyOutput {
+#transcriptOutput {
     min-height: 280px;
 }
 

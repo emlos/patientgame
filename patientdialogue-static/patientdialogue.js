@@ -13,7 +13,7 @@ const FACT_STATE_ORDER = Object.freeze({
 const elements = {
     patientSummary: document.getElementById("patientSummary"),
     restartButton: document.getElementById("restartButton"),
-    storyOutput: document.getElementById("storyOutput"),
+    transcriptOutput: document.getElementById("transcriptOutput"),
     choiceList: document.getElementById("choiceList"),
     symptomChecklist: document.getElementById("symptomChecklist"),
     diagnosisList: document.getElementById("diagnosisList"),
@@ -75,12 +75,12 @@ function slugify(value) {
         .replace(/^_+|_+$/g, "");
 }
 
-function appendStoryLine(text, className = "story-line") {
+function appendTranscriptLine(text, className = "story-line") {
     const line = document.createElement("div");
     line.className = className;
     line.textContent = text;
-    elements.storyOutput.appendChild(line);
-    elements.storyOutput.scrollTop = elements.storyOutput.scrollHeight;
+    elements.transcriptOutput.appendChild(line);
+    elements.transcriptOutput.scrollTop = elements.transcriptOutput.scrollHeight;
 }
 
 function getPersonality() {
@@ -426,7 +426,7 @@ function askQuestion(questionId) {
         return;
     }
 
-    appendStoryLine(`> ${question.label}`, "system-line");
+    appendTranscriptLine(`> ${question.label}`, "system-line");
     applyQuestionEffects(question);
 
     const responseLines = [
@@ -438,7 +438,7 @@ function askQuestion(questionId) {
         responseLines.push(getRelevantExhaustedResponse(question));
     }
 
-    responseLines.forEach((line) => appendStoryLine(line));
+    responseLines.forEach((line) => appendTranscriptLine(line));
 
     if (state.notebookUnlocked) {
         renderFollowups();
@@ -672,7 +672,7 @@ function applyFollowupPatience(fact) {
     }
 
     if (fact.followup?.patienceLine) {
-        appendStoryLine(fact.followup.patienceLine, "note-line");
+        appendTranscriptLine(fact.followup.patienceLine, "note-line");
     }
 }
 
@@ -690,8 +690,8 @@ function askFollowup(factId) {
         return;
     }
 
-    appendStoryLine(`> ${fact.followup.label}`, "system-line");
-    getFollowupResponseLines(fact).forEach((line) => appendStoryLine(line));
+    appendTranscriptLine(`> ${fact.followup.label}`, "system-line");
+    getFollowupResponseLines(fact).forEach((line) => appendTranscriptLine(line));
     applyFollowupPatience(fact);
 
     state.askedFollowupFactIds.push(fact.id);
@@ -700,7 +700,7 @@ function askFollowup(factId) {
     }
 
     if (state.patience <= 0 && getAskableSelectedFacts().length) {
-        appendStoryLine(VERA_INTERVIEW.outOfPatienceLine, "story-line");
+        appendTranscriptLine(VERA_INTERVIEW.outOfPatienceLine, "story-line");
         finishFollowupPass();
         return;
     }
@@ -726,8 +726,8 @@ function returnToPatientForFollowup() {
     state.activeFollowupSymptoms = Array.from(state.selectedSymptoms);
     state.patience = Math.max(0, state.patience - 1);
 
-    appendStoryLine('> "I will come back in a second. I have more questions."', "system-line");
-    appendStoryLine(
+    appendTranscriptLine('> "I will come back in a second. I have more questions."', "system-line");
+    appendTranscriptLine(
         state.patience <= 0
             ? VERA_INTERVIEW.finalPatienceWarning
             : VERA_INTERVIEW.followupReturnLine,
@@ -743,7 +743,7 @@ function returnToPatientForFollowup() {
 function finishFollowupPass() {
     state.isBackWithPatient = false;
     state.activeFollowupSymptoms = [];
-    appendStoryLine(VERA_INTERVIEW.notebookReturnLine, "note-line");
+    appendTranscriptLine(VERA_INTERVIEW.notebookReturnLine, "note-line");
     renderPatientSummary();
     renderSymptomChecklist();
     renderFollowups();
@@ -770,13 +770,15 @@ function renderDebug() {
 }
 
 function renderStaticIntro() {
-    appendStoryLine(`Approach note: ${getPersonality().primerText}`, "note-line");
-    appendStoryLine(VERA_INTERVIEW.patient.opener);
+    // The prototype now renders its opening lines directly instead of booting an Ink story.
+
+    appendTranscriptLine(`Approach note: ${getPersonality().primerText}`, "note-line");
+    appendTranscriptLine(VERA_INTERVIEW.patient.opener);
 }
 
 function restart() {
     resetState(VERA_INTERVIEW);
-    elements.storyOutput.innerHTML = "";
+    elements.transcriptOutput.innerHTML = "";
     elements.choiceList.innerHTML = "";
     renderStaticIntro();
     renderPatientSummary();
