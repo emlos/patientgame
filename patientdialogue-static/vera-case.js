@@ -48,6 +48,7 @@ export const VERA_CASE = Object.freeze({
         "Skin redness",
         "Nausea and vomiting",
     ],
+    //TODO: unused - will be handled by personality types/symptoms cross
     broadQuestions: [
         branch("warm_intro", { kind: "opening", trustDelta: 1 }),
         branch("cold_intro", { kind: "opening", trustDelta: -1 }),
@@ -60,6 +61,7 @@ export const VERA_CASE = Object.freeze({
         branch("function"),
         branch("finish", { once: false, unlockNotebook: true }),
     ],
+    //patient specific
     followups: [
         followup("Headache"),
         followup("Photophobia"),

@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Patient Dialogue MVP Documentation</title>
+  <style>
+    :root {
+      --bg: #f5f3ee;
+      --paper: #fffdf8;
+      --ink: #1f1d1a;
+      --muted: #6a655d;
+      --line: #cfc7ba;
+      --accent: #5a6d8a;
+      --codebg: #f1ede5;
+    }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+    main { max-width: 1100px; margin: 0 auto; padding: 32px 20px 64px; }
+    h1, h2, h3 { line-height: 1.2; }
+    h1 { margin: 0 0 8px; font-size: 2rem; }
+    h2 { margin-top: 36px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 1.35rem; }
+    h3 { margin-top: 24px; font-size: 1.05rem; }
+    p, li { max-width: 90ch; }
+    .lead { color: var(--muted); margin-top: 0; }
+    .card { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 18px 18px 16px; margin: 16px 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.93em; }
+    pre { background: var(--codebg); border: 1px solid var(--line); border-radius: 8px; padding: 14px; overflow: auto; white-space: pre-wrap; }
+    table { border-collapse: collapse; width: 100%; background: var(--paper); margin: 12px 0 20px; }
+    th, td { border: 1px solid var(--line); padding: 10px 12px; vertical-align: top; text-align: left; }
+    th { background: #f0ebe2; }
+    .small { color: var(--muted); font-size: 0.95rem; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc a:hover { text-decoration: underline; }
+    .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; background: #ece7de; border: 1px solid var(--line); margin: 2px 6px 2px 0; font-size: 0.9rem; }
+    .warn { background: #fff6e8; border-left: 4px solid #c28b2c; padding: 12px 14px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Patient Dialogue MVP Documentation</h1>
+  <p class="lead">Current state of the Vera prototype after the data-driven interview-state-machine refactor.</p>
+
+  <div class="card toc">
+    <strong>Contents</strong>
+    <p>
+      <a href="#overview">Overview</a> ·
+      <a href="#files">File layout</a> ·
+      <a href="#loop">Interview loop</a> ·
+      <a href="#runtime">Runtime state</a> ·
+      <a href="#values">Current values</a> ·
+      <a href="#schema">Authoring schema</a> ·
+      <a href="#adding">How to add more content</a> ·
+      <a href="#limits">Current limits</a>
+    </p>
+  </div>
+
+  <h2 id="overview">1. Overview</h2>
+  <p>The current system is not a classic branching dialogue tree. It is an interview state machine.</p>
+  <p>The core idea is:</p>
+  <pre>question chosen → tone/trust/patience update → channel pressure increases → facts can surface → surfaced facts unlock new questions</pre>
+  <p>This keeps the interview gradual. The player does not see all questions at once. New questions only appear after the patient has said enough to create an opening. If an opening is missed and the first pass ends, that topic can stay missed for the rest of the run.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>What the system tracks</h3>
+      <p>Trust and patience are separate.</p>
+      <p>Trust changes how much the patient volunteers. Patience changes how much more they will tolerate.</p>
+    </div>
+    <div class="card">
+      <h3>What questions do</h3>
+      <p>Questions do not contain the whole answer tree. They mainly apply pressure to one or more channels such as <code>head</code>, <code>general</code>, <code>work</code>, or <code>skin</code>.</p>
+    </div>
+    <div class="card">
+      <h3>What facts do</h3>
+      <p>Facts are the real content units. Each fact has thresholds for becoming <code>hinted</code> or <code>confirmed</code>, plus personality-specific text.</p>
+    </div>
+  </div>
+
+  <h2 id="files">2. File layout</h2>
+  <table>
+    <thead>
+      <tr><th>File</th><th>Role</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>patientdialogue-static/index.html</code></td><td>Standalone prototype page.</td></tr>
+      <tr><td><code>patientdialogue-static/patientdialogue.js</code></td><td>Runtime engine, rendering, state transitions, visibility checks, follow-up flow.</td></tr>
+      <tr><td><code>patientdialogue-static/patientdialogue.css</code></td><td>Prototype styling.</td></tr>
+      <tr><td><code>patientdialogue-static/personalities.js</code></td><td>Personality definitions and tone modifiers.</td></tr>
+      <tr><td><code>patientdialogue-static/questions.js</code></td><td>Question definitions and visibility rules.</td></tr>
+      <tr><td><code>patientdialogue-static/facts/vera-facts.js</code></td><td>Vera’s fact packets: symptoms, context facts, thresholds, responses, follow-ups.</td></tr>
+      <tr><td><code>patientdialogue-static/interviews/vera-interview.js</code></td><td>Vera’s interview blueprint tying patient, questions, facts, and personalities together.</td></tr>
+      <tr><td><code>data.js</code></td><td>Global diagnosis and symptom reference data. Notebook symptom definitions still come from here.</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="loop">3. Interview loop</h2>
+  <ol>
+    <li>The screen opens with Vera’s opener and a personality primer.</li>
+    <li>The player chooses one opening approach.</li>
+    <li>The system enters <code>first_pass</code>.</li>
+    <li>Broad questions are asked. Each one modifies trust/patience and raises channel pressure.</li>
+    <li>Facts can move from <code>hidden</code> to <code>hinted</code> or <code>confirmed</code>.</li>
+    <li>Once a fact is at least <code>hinted</code>, more specific questions can become visible.</li>
+    <li>Ending the first pass unlocks the notebook and blocks all still-hidden facts.</li>
+    <li>The player selects up to four symptoms.</li>
+    <li>The player returns once for a follow-up pass, spending one patience.</li>
+    <li>Only selected symptoms that have an opening can be asked about.</li>
+  </ol>
+
+  <div class="warn">
+    <strong>Important current rule:</strong> ending the first pass calls <code>blockHiddenFacts()</code>. Any fact that is still <code>hidden</code> becomes <code>blocked</code> and can no longer unlock later in that run.
+  </div>
+
+  <h2 id="runtime">4. Runtime state</h2>
+  <p>The runtime state is created by <code>createInitialState()</code> in <code>patientdialogue.js</code>.</p>
+  <pre>const state = {
+  phase: "opening",
+  trust: 0,
+  patience: 5,
+  askedQuestionIds: [],
+  askedQuestionCounts: {},
+  askedFollowupFactIds: [],
+  channelPressure: {
+    general: 0,
+    head: 0,
+    stomach: 0,
+    skin: 0,
+    work: 0,
+    home: 0,
+    function: 0,
+    habits: 0
+  },
+  factStates: { factId: "hidden" | "hinted" | "confirmed" | "blocked" | "exhausted" },
+  factDetailStage: { factId: 0 },
+  selectedSymptoms: Set(),
+  activeFollowupSymptoms: [],
+  notebookUnlocked: false,
+  isBackWithPatient: false,
+  openingQuestionId: null,
+  lastQuestionId: null
+}</pre>
+
+  <h3>Fact state order</h3>
+  <table>
+    <thead><tr><th>State</th><th>Order</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code>blocked</code></td><td>-1</td><td>Missed permanently for this run.</td></tr>
+      <tr><td><code>hidden</code></td><td>0</td><td>Not surfaced yet.</td></tr>
+      <tr><td><code>hinted</code></td><td>1</td><td>Enough has surfaced to create an opening.</td></tr>
+      <tr><td><code>confirmed</code></td><td>2</td><td>The interview has made the fact strong enough to stand on its own.</td></tr>
+      <tr><td><code>exhausted</code></td><td>3</td><td>Reserved for over-asked facts. Defined now, barely used yet.</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="values">5. Current values in the Vera MVP</h2>
+
+  <h3>Interview blueprint values</h3>
+  <div class="card">
+    <p><span class="pill">patient.id = vera-karmina</span><span class="pill">personalityId = guarded</span><span class="pill">startingTrust = 0</span><span class="pill">startingPatience = 5</span><span class="pill">maxFollowupSymptomsSelected = 4</span></p>
+    <p><strong>Opener:</strong> <code>"I cannot bear the light today. My head feels fit to split."</code></p>
+    <p><strong>Notebook symptoms:</strong> Headache, Photophobia, Fever, Weakness, Skin redness, Nausea and vomiting.</p>
+  </div>
+
+  <h3>Current phases</h3>
+  <p><span class="pill">opening</span><span class="pill">first_pass</span><span class="pill">notebook</span></p>
+  <p class="small">There is no separate dedicated follow-up phase string at the moment. Follow-up state is tracked with <code>isBackWithPatient</code>.</p>
+
+  <h3>Current channels</h3>
+  <p>
+    <span class="pill">general</span>
+    <span class="pill">head</span>
+    <span class="pill">stomach</span>
+    <span class="pill">skin</span>
+    <span class="pill">work</span>
+    <span class="pill">home</span>
+    <span class="pill">function</span>
+    <span class="pill">habits</span>
+  </p>
+  <p class="small"><code>habits</code> exists in state already, but Vera does not use it yet.</p>
+
+  <h3>Current tones</h3>
+  <p>
+    <span class="pill">practical</span>
+    <span class="pill">neutral</span>
+    <span class="pill">empathetic</span>
+    <span class="pill">probing</span>
+    <span class="pill">accusatory</span>
+    <span class="pill">intrusive</span>
+  </p>
+
+  <h3>Current personalities</h3>
+  <table>
+    <thead>
+      <tr><th>Personality</th><th>Primer</th><th>Affinities</th><th>Threshold mods</th><th>Other values</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>guarded</code></td>
+        <td>Brief, dignified, dislikes prying.</td>
+        <td>practical +1, neutral 0, empathetic 0, probing -1, accusatory -2, intrusive -2</td>
+        <td>hintTrust +0, confirmTrust +1</td>
+        <td>repeatPatiencePenalty 1, dislikedTonePatiencePenalty 1, answerStyle <code>brief</code></td>
+      </tr>
+      <tr>
+        <td><code>talkative</code></td>
+        <td>Opens up when heard, tolerates curiosity.</td>
+        <td>practical 0, neutral 0, empathetic +1, probing +1, accusatory -1, intrusive -1</td>
+        <td>hintTrust -1, confirmTrust +0</td>
+        <td>repeatPatiencePenalty 0, dislikedTonePatiencePenalty 0, answerStyle <code>expansive</code></td>
+      </tr>
+      <tr>
+        <td><code>proud</code></td>
+        <td>Direct, dislikes being handled or patronized.</td>
+        <td>practical +1, neutral 0, empathetic 0, probing -1, accusatory -2, intrusive -2</td>
+        <td>hintTrust +0, confirmTrust +1</td>
+        <td>repeatPatiencePenalty 1, dislikedTonePatiencePenalty 1, answerStyle <code>defensive</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Current question IDs</h3>
+  <table>
+    <thead><tr><th>ID</th><th>Phase</th><th>Tone</th><th>Channels</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>opening_warm</code></td><td>opening</td><td>practical</td><td>head</td><td>Warm opening, directly hints headache + photophobia, then moves to first pass.</td></tr>
+      <tr><td><code>opening_cold</code></td><td>opening</td><td>accusatory</td><td>head</td><td>Cold opening, same topic unlock but worse tone.</td></tr>
+      <tr><td><code>ask_onset</code></td><td>first_pass</td><td>practical</td><td>general</td><td>General onset pressure.</td></tr>
+      <tr><td><code>ask_workday</code></td><td>first_pass</td><td>practical</td><td>work</td><td>Occupation context and false lead pressure.</td></tr>
+      <tr><td><code>ask_home</code></td><td>first_pass</td><td>neutral</td><td>home</td><td>Residence/contact context.</td></tr>
+      <tr><td><code>ask_function</code></td><td>first_pass</td><td>practical</td><td>function, general</td><td>Interference with ordinary tasks.</td></tr>
+      <tr><td><code>ask_headache_history</code></td><td>first_pass</td><td>probing</td><td>head</td><td>Visible only after headache is hinted.</td></tr>
+      <tr><td><code>ask_stomach</code></td><td>first_pass</td><td>probing</td><td>stomach, general</td><td>Visible after enough context or symptom pressure.</td></tr>
+      <tr><td><code>ask_skin_followup</code></td><td>first_pass</td><td>intrusive</td><td>skin</td><td>Visible only after skin redness is hinted.</td></tr>
+      <tr><td><code>finish_first_pass</code></td><td>first_pass</td><td>neutral</td><td>—</td><td>Unlocks notebook and blocks any still-hidden facts.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Current visibility rule types</h3>
+  <p>
+    <span class="pill">phase_is</span>
+    <span class="pill">fact_at_least</span>
+    <span class="pill">question_asked</span>
+    <span class="pill">any</span>
+  </p>
+  <pre>// Example from ask_skin_followup
+visibleWhen: [
+  { type: "phase_is", value: "first_pass" },
+  { type: "fact_at_least", factId: "vera_skin_redness", state: "hinted" }
+]</pre>
+
+  <h3>Current fact IDs</h3>
+  <table>
+    <thead><tr><th>Fact</th><th>Type</th><th>Symptom</th><th>Channels</th><th>Current purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>vera_headache</code></td><td>symptom</td><td>Headache</td><td>head, general</td><td>Main complaint, broad head channel.</td></tr>
+      <tr><td><code>vera_photophobia</code></td><td>symptom</td><td>Photophobia</td><td>head, general</td><td>Light sensitivity, tied to opener.</td></tr>
+      <tr><td><code>vera_fever</code></td><td>symptom</td><td>Fever</td><td>general</td><td>Core diagnostic direction.</td></tr>
+      <tr><td><code>vera_weakness</code></td><td>symptom</td><td>Weakness</td><td>function, general</td><td>Function pressure.</td></tr>
+      <tr><td><code>vera_nausea</code></td><td>symptom</td><td>Nausea and vomiting</td><td>stomach, general</td><td>Occupation/false-lead pressure.</td></tr>
+      <tr><td><code>vera_skin_redness</code></td><td>symptom</td><td>Skin redness</td><td>skin, general</td><td>Late reveal, gated opening.</td></tr>
+      <tr><td><code>vera_apothecary_context</code></td><td>context</td><td>—</td><td>work</td><td>Occupation flavor and chemical-exposure red herring.</td></tr>
+      <tr><td><code>vera_chine_context</code></td><td>context</td><td>—</td><td>home</td><td>Residence/crowding context.</td></tr>
+    </tbody>
+  </table>
+
+  <p class="small">Each fact also contains personality-specific text for <code>hinted</code> and <code>confirmed</code>, plus an <code>exhaustedResponses</code> fallback and usually a <code>followup</code> block.</p>
+
+  <h2 id="schema">6. Authoring schema</h2>
+
+  <h3>Personality object</h3>
+  <pre>{
+  id: "guarded",
+  label: "guarded",
+  primerText: "...",
+  toneAffinity: {
+    practical: 1,
+    neutral: 0,
+    empathetic: 0,
+    probing: -1,
+    accusatory: -2,
+    intrusive: -2
+  },
+  repeatPatiencePenalty: 1,
+  dislikedTonePatiencePenalty: 1,
+  thresholdMods: {
+    hintTrust: 0,
+    confirmTrust: 1
+  },
+  answerStyle: "brief"
+}</pre>
+
+  <h3>Question object</h3>
+  <pre>{
+  id: "ask_skin_followup",
+  phase: "first_pass",
+  label: "Ask what she means when she says her skin feels wrong",
+  tone: "intrusive",
+  channels: ["skin"],
+  once: true,
+  visibleWhen: [
+    { type: "phase_is", value: "first_pass" },
+    { type: "fact_at_least", factId: "vera_skin_redness", state: "hinted" }
+  ]
+}</pre>
+
+  <h3>Fact object</h3>
+  <pre>{
+  id: "vera_skin_redness",
+  type: "symptom",          // or "context"
+  symptomId: "Skin redness", // null for non-symptom context facts
+  sourceIds: ["measles"],
+  channels: ["skin", "general"],
+  priority: 60,
+  thresholds: {
+    hinted: { trustAtLeast: 2, channelPressure: { general: 2 } },
+    confirmed: { trustAtLeast: 1, channelPressure: { skin: 1 } }
+  },
+  responses: {
+    hinted: { guarded: ["..."], talkative: ["..."], proud: ["..."] },
+    confirmed: { guarded: ["..."], talkative: ["..."], proud: ["..."] }
+  },
+  exhaustedResponses: {
+    guarded: "...",
+    talkative: "...",
+    proud: "..."
+  },
+  followup: {
+    label: "Ask directly about the redness",
+    patienceCost: 1,
+    patienceLine: "...",
+    responses: {
+      guarded: ["..."],
+      talkative: ["..."],
+      proud: ["..."]
+    }
+  }
+}</pre>
+
+  <h3>Interview blueprint object</h3>
+  <pre>{
+  id: "vera-karmina",
+  patient: { ...display data... },
+  personalityId: "guarded",
+  startingTrust: 0,
+  startingPatience: 5,
+  maxFollowupSymptomsSelected: 4,
+  notebookSymptoms: [...],
+  questionOrder: [...],
+  questions: QUESTION_DEFINITIONS,
+  facts: VERA_FACTS,
+  personalities: PERSONALITIES,
+  notebookIntro: "...",
+  followupIntro: "...",
+  notebookReturnLine: "...",
+  followupReturnLine: "...",
+  finalPatienceWarning: "...",
+  outOfPatienceLine: "..."
+}</pre>
+
+  <h2 id="adding">7. How to write more</h2>
+
+  <h3>To add a new broad question</h3>
+  <ol>
+    <li>Add a new entry in <code>questions.js</code>.</li>
+    <li>Choose its <code>phase</code>, <code>tone</code>, and <code>channels</code>.</li>
+    <li>Add <code>visibleWhen</code> rules if it should only appear after an opening exists.</li>
+    <li>Append its ID to the patient interview’s <code>questionOrder</code>.</li>
+  </ol>
+
+  <h3>To add a new symptom or context fact</h3>
+  <ol>
+    <li>Add a new fact in the patient fact file, such as <code>vera-facts.js</code>.</li>
+    <li>Pick its <code>channels</code>.</li>
+    <li>Define <code>hinted</code> and <code>confirmed</code> thresholds.</li>
+    <li>Write response lines for each current personality used by the prototype.</li>
+    <li>Add a <code>followup</code> block if the notebook should let the player press on it later.</li>
+    <li>If it is a true symptom the player should be able to select in the notebook, add its symptom label to <code>notebookSymptoms</code>.</li>
+  </ol>
+
+  <h3>To add a new patient after Vera</h3>
+  <ol>
+    <li>Create a new fact file, for example <code>facts/martin-facts.js</code>.</li>
+    <li>Create a new interview blueprint, for example <code>interviews/martin-interview.js</code>.</li>
+    <li>Reuse the shared personalities and question file where possible.</li>
+    <li>Only make a new question file if the patient truly needs different question IDs or different visibility logic.</li>
+  </ol>
+
+  <h3>Authoring advice</h3>
+  <ul>
+    <li>Keep questions abstract and reusable. Put truth-specific text into facts.</li>
+    <li>Use channels to decide what a question is “about.”</li>
+    <li>Use tone to decide trust and patience impact.</li>
+    <li>Use fact thresholds to control when something becomes visible or stays hidden.</li>
+    <li>Use context facts for red herrings and occupation/life-event flavor.</li>
+    <li>Reserve follow-up questions for facts that have already been hinted, unless you intentionally want the player to get a denial.</li>
+  </ul>
+
+  <h2 id="limits">8. Current limits and known simplifications</h2>
+  <ul>
+    <li>This is still Vera-only. The architecture is broader than the content.</li>
+    <li><code>answerStyle</code> is stored on personalities, but is mostly descriptive right now.</li>
+    <li><code>factDetailStage</code> exists in state, but staged multi-layer fact progression is not fully exploited yet.</li>
+    <li><code>exhausted</code> exists as a fact state, but the current prototype mostly handles repetition through exhausted response text and patience penalties instead of a rich stage system.</li>
+    <li>Follow-up symptom selection currently only works for symptoms whose fact includes a <code>followup</code> block.</li>
+    <li>The prototype currently uses a fixed Vera personality from the blueprint, not a randomized one.</li>
+  </ul>
+
+  <h2>9. Short version</h2>
+  <p>The MVP works because it separates the system into four layers:</p>
+  <ol>
+    <li><strong>Questions</strong> decide pressure and tone.</li>
+    <li><strong>Personalities</strong> decide reaction and thresholds.</li>
+    <li><strong>Facts</strong> decide what truth can surface and how it is phrased.</li>
+    <li><strong>Interview state</strong> decides what is visible now and what has been missed.</li>
+  </ol>
+  <p>That is the part worth preserving as the system grows.</p>
+</main>
+</body>
+</html>

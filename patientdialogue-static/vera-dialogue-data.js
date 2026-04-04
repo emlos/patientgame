@@ -1,3 +1,6 @@
+//TODO: export const flavortext with gaps, madlibs style 
+
+//TODO transform into personality+state type fillers, with condition variants?
 export const VERA_DIALOGUE_STRINGS = Object.freeze({
     patient: {
         opener: '"I cannot bear the light today. My head feels fit to split."',
@@ -10,10 +13,11 @@ export const VERA_DIALOGUE_STRINGS = Object.freeze({
         finalPatienceWarning:
             'Vera closes her eyes for a moment. "Then make this the last of it, doctor."',
         notebookReturnLine:
-            "You step away again and sort what you learned against the notebook.",
+            "You step away again and sort what you learned against the notebook.", //TODO move to general strings.js type file
         outOfPatienceLine:
             'Vera gathers the blanket closer. "No more for now. I have already given you enough."',
     },
+    //TODO reactions to each question for each personality
     broadQuestions: {
         warm_intro: {
             label: "Tell her she may begin in her own order",
@@ -75,6 +79,7 @@ export const VERA_DIALOGUE_STRINGS = Object.freeze({
                 '"This morning I nearly dropped a bottle at work," Vera says. "My hands obey well enough, but I feel wrung out."',
             ],
         },
+        //TODO move to general strings.js type file
         finish: {
             label: "Conclude the first pass and turn to the notebook",
             lines: [
@@ -83,6 +88,8 @@ export const VERA_DIALOGUE_STRINGS = Object.freeze({
             ],
         },
     },
+    //TODO labels can be moved to general strings.js type file, responses for each personality type can stay
+    //should be for every symptom
     followups: {
         Headache: {
             label: "Ask her to describe the pain exactly",
@@ -132,3 +139,5 @@ export const VERA_DIALOGUE_STRINGS = Object.freeze({
         },
     },
 });
+
+//TODO: debug - add clear tooltips to test ui to see what array/source/reasons was a line chosen from.

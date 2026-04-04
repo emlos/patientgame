@@ -1,0 +1,137 @@
+export const QUESTION_DEFINITIONS = Object.freeze({
+    //TODO expand categories
+    opening_warm: {
+        id: "opening_warm",
+        phase: "opening",
+        label: "Tell her she may begin in her own order",
+        tone: "practical",
+        channels: ["head"],
+        once: true,
+        responseLines: [
+            "You leave the pencil where it is for a moment and let her speak before you start to write.",
+            "Vera lowers her hand from her brow, though she still squints away from the window.",
+            '"I might have endured the headache," she says. "It is the light that turned cruel."',
+        ],
+        factEffects: [
+            { factId: "vera_headache", setAtLeast: "hinted" },
+            { factId: "vera_photophobia", setAtLeast: "hinted" },
+        ],
+        nextPhase: "first_pass",
+    },
+    opening_cold: {
+        id: "opening_cold",
+        phase: "opening",
+        label: "Open the chart at once and ask for the complaint plainly",
+        tone: "accusatory",
+        channels: ["head"],
+        once: true,
+        responseLines: [
+            "You uncap the pencil before offering comfort.",
+            "She notices. That seems to stiffen her.",
+            '"Very well," Vera says. "My head pounds, and daylight stabs straight through my eyes."',
+        ],
+        factEffects: [
+            { factId: "vera_headache", setAtLeast: "hinted" },
+            { factId: "vera_photophobia", setAtLeast: "hinted" },
+        ],
+        nextPhase: "first_pass",
+    },
+    //opening_soothe
+    ask_onset: {
+        id: "ask_onset",
+        phase: "first_pass",
+        label: "Ask when this changed from a nuisance into an illness",
+        tone: "practical",
+        channels: ["general"],
+        once: true,
+        visibleWhen: [{ type: "phase_is", value: "first_pass" }],
+    },
+    ask_workday: {
+        id: "ask_workday",
+        phase: "first_pass",
+        label: "Ask what her days at the apothecary look like",
+        tone: "practical",
+        channels: ["work"],
+        once: true,
+        visibleWhen: [{ type: "phase_is", value: "first_pass" }],
+    },
+    ask_home: {
+        id: "ask_home",
+        phase: "first_pass",
+        label: "Ask about her home and the people around her",
+        tone: "neutral",
+        channels: ["home"],
+        once: true,
+        visibleWhen: [{ type: "phase_is", value: "first_pass" }],
+    },
+    ask_function: {
+        id: "ask_function",
+        phase: "first_pass",
+        label: "Ask whether the illness is interfering with ordinary tasks",
+        tone: "practical",
+        channels: ["function", "general"],
+        once: true,
+        visibleWhen: [{ type: "phase_is", value: "first_pass" }],
+    },
+    ask_headache_history: {
+        id: "ask_headache_history",
+        phase: "first_pass",
+        label: "Ask whether she is often troubled with headaches",
+        tone: "probing",
+        channels: ["head"],
+        once: true,
+        visibleWhen: [
+            { type: "phase_is", value: "first_pass" },
+            { type: "fact_at_least", factId: "vera_headache", state: "hinted" },
+        ],
+    },
+    ask_stomach: {
+        id: "ask_stomach",
+        phase: "first_pass",
+        label: "Ask whether the sickness turns her stomach",
+        tone: "probing",
+        channels: ["stomach", "general"],
+        once: true,
+        visibleWhen: [
+            { type: "phase_is", value: "first_pass" },
+            {
+                type: "any",
+                rules: [
+                    { type: "question_asked", questionId: "ask_onset" },
+                    { type: "question_asked", questionId: "ask_workday" },
+                    { type: "fact_at_least", factId: "vera_fever", state: "hinted" },
+                    { type: "fact_at_least", factId: "vera_weakness", state: "hinted" },
+                ],
+            },
+        ],
+    },
+    ask_skin_followup: {
+        id: "ask_skin_followup",
+        phase: "first_pass",
+        label: "Ask what she means when she says her skin feels wrong",
+        tone: "intrusive",
+        channels: ["skin"],
+        once: true,
+        visibleWhen: [
+            { type: "phase_is", value: "first_pass" },
+            { type: "fact_at_least", factId: "vera_skin_redness", state: "hinted" },
+        ],
+    },
+    //ask_symptom*_followup
+    //ask_liefeevent*followup
+    finish_first_pass: {
+        id: "finish_first_pass",
+        phase: "first_pass",
+        label: "Conclude the first pass and turn to the notebook",
+        tone: "neutral",
+        channels: [],
+        once: true,
+        visibleWhen: [{ type: "phase_is", value: "first_pass" }],
+        responseLines: [
+            "You let the first layer of answers settle instead of needling her at random.",
+            "Now it is on you to decide which symptoms are worth testing further.",
+        ],
+        unlockNotebook: true,
+        nextPhase: "notebook",
+    },
+});

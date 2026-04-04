@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>patient dialogue test</title>
-    <script src="https://cdn.jsdelivr.net/npm/inkjs@2.4.0/dist/ink-full.min.js"></script>
     <link rel="stylesheet" href="./patientdialogue.css">
 </head>
 
@@ -14,9 +13,8 @@
         <section class="panel">
             <h1>patient dialogue test</h1>
             <p>
-                Hardcoded Vera prototype using inkjs for the interview tree, plus a notebook loop for symptom
-                selection and targeted follow-ups. The authored dialogue copy lives in a dedicated data file so the
-                scene text stays separate from the scaffolding.
+                Hardcoded Vera prototype using a small interview state machine: questions build pressure on topics,
+                trust changes what she volunteers, and only surfaced facts unlock more specific questions.
             </p>
 
             <div id="patientSummary" class="summary"></div>
@@ -59,10 +57,6 @@
             <h3>Runtime</h3>
             <pre id="debugOutput" class="output compact"></pre>
 
-            <details>
-                <summary>Generated Ink source</summary>
-                <pre id="inkSourceOutput" class="output ink-source"></pre>
-            </details>
         </section>
     </main>
 

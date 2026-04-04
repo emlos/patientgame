@@ -88,16 +88,15 @@ body {
     margin-bottom: 8px;
 }
 
-@media (max-width: 900px) {
-    .layout {
-        grid-template-columns: 1fr;
-    }
-}
-
 .followup-status {
     margin-bottom: 8px;
 }
 
 .status-danger {
     font-weight: bold;
+}
+
+.choice-list button[disabled],
+.toolbar button[disabled] {
+    opacity: 0.5;
 }
