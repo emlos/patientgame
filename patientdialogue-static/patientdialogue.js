@@ -18,8 +18,8 @@ const elements = {
 };
 
 const watchedVariables = ["trust", "broad_questions_asked", "interview_complete"];
-const defaultPatience = 4;
-const defaultMaxFollowupSymptomsSelected = 3;
+const defaultPatience = 6;
+const defaultMaxFollowupSymptomsSelected = 4;
 const strengthRank = Object.freeze({ soft: 1, strong: 2 });
 
 const state = {
@@ -421,13 +421,17 @@ function returnToPatientForFollowup() {
 
     state.isBackWithPatient = true;
     state.patienceRemaining = Math.max(0, state.patienceRemaining - 1);
-    appendStoryLine('> "I will come back in a second. I have more questions."', "system-line");
+    appendStoryLine('> "I have more questions."', "system-line");
 
     if (state.patienceRemaining <= 0) {
-        appendStoryLine(`Vera looks exhausted. "Make this the last of it."`, "story-line");
+        appendStoryLine(
+            VERA_CASE.finalPatienceWarning || `The patient looks exhausted. "Make this the last of it."`,
+            "story-line",
+        );
     } else {
         appendStoryLine(
-            "You return to the bedside with a narrower line of questioning in mind.",
+            VERA_CASE.followupReturnLine ||
+                "You return to the bedside with a narrower line of questioning in mind.",
             "note-line",
         );
     }
@@ -506,9 +510,9 @@ function buildInkSource(caseData) {
         "",
         "=== interview_hub ===",
         "{ trust > 0:",
-        "    Vera answers a little more openly now.",
+        `    ${caseData.trustOpenLine || "The patient answers a little more openly now."}`,
         "- else:",
-        "    Vera stays guarded and watches your face between answers.",
+        `    ${caseData.trustClosedLine || "The patient stays guarded and watches your face between answers."}`,
         "}",
         "",
         ...interviewBranches.map((branch) =>
@@ -588,7 +592,8 @@ function askFollowup(symptomLabel) {
     continueStory();
     state.isBackWithPatient = false;
     appendStoryLine(
-        "You step away to the notebook again and sort through what that answer changes.",
+        VERA_CASE.notebookReturnLine ||
+            "You step away to the notebook again and sort through what that answer changes.",
         "note-line",
     );
     renderPatientSummary();
